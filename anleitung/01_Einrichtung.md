@@ -232,7 +232,7 @@ E-Mail-Adresse.
 > | Flow-ID | `5552f8c7-e2de-49b6-a256-4c9649b1bc2c` |
 > | Zustand | eingeschaltet (*Started*) |
 > | Besitzer | `powerplatform@campus-sursee.ch` |
-> | SharePoint-Verbindung | die bestehende Verbindung auf `admin@CAMPUSSURSEE.onmicrosoft.com` |
+> | SharePoint-Verbindung | die Verbindung des Dienstkontos `powerplatform@campus-sursee.ch` |
 > | Trigger-URL | steht als `FLOW_GERAET_URL` in `frontend/konfig.js` |
 >
 > Die vollständige Definition liegt als Referenzkopie im Projekt unter
@@ -242,15 +242,15 @@ E-Mail-Adresse.
 > durchgespielt und stimmen alle — auch der Sonderzeichenfall. Das Testgerät
 > wurde danach wieder gelöscht, die Liste `Geraete` ist leer.
 >
-> **Offener Punkt für den Betrieb:** Der Flow läuft auf der
-> SharePoint-Verbindung des Kontos `admin@CAMPUSSURSEE.onmicrosoft.com`, weil
-> das Dienstkonto `powerplatform@campus-sursee.ch` **keinen Zugriff auf die
-> Site `mgmts-ict-s`** hat. Ein Administratorkonto sollte auf Dauer nicht
-> Träger eines produktiven Flows sein. Empfohlen: `powerplatform@` der
-> Microsoft-365-Gruppe `ICT-S` als Mitglied hinzufügen und danach im Flow die
-> Verbindung der Aktion «Elemente abrufen» auf die Verbindung des
-> Dienstkontos umstellen (Flow öffnen → Aktion → Verbindung wechseln). Danach
-> die fünf Prüffälle aus C.8 einmal wiederholen.
+> **Zur SharePoint-Verbindung:** Der Flow greift mit dem Dienstkonto
+> `powerplatform@campus-sursee.ch` auf die Site zu. Damit das geht, muss
+> dieses Konto Zugriff auf `mgmts-ict-s` haben — es wurde am 31.08.2026
+> hinzugefügt. **Wird dieser Zugriff je entzogen, hört der Flow auf zu
+> arbeiten** und `geraet.html` zeigt bei jedem QR-Code «Gerät nicht
+> gefunden». Beim Aufräumen von Berechtigungen daran denken.
+>
+> Zwischenzeitlich lief der Flow auf einer Verbindung des Kontos
+> `admin@CAMPUSSURSEE.onmicrosoft.com`; diese wird nicht mehr gebraucht.
 
 Dieser Flow ist die einzige Stelle, an der jemand **ohne Anmeldung** Daten
 aus SharePoint bekommt. Er ist deshalb bewusst eng gebaut: er gibt nur sechs
@@ -650,6 +650,10 @@ Zum Schluss die ganze Kette einmal durchspielen:
 
 ## Was der Betrieb später wissen muss
 
+- **Zugriff des Flows:** Der Flow «API Geraet laden» liest SharePoint mit dem
+  Dienstkonto `powerplatform@campus-sursee.ch`. Dieses Konto braucht dauerhaft
+  Zugriff auf die Site `mgmts-ict-s`. Verliert es ihn, liefert der Flow für
+  jedes Gerät ein 404.
 - **Neue Person berechtigen:** Entra → Unternehmensanwendungen →
   `ICT Lager Verwaltung` → Benutzer und Gruppen (oder in die Gruppe
   `SG-ICT-Lager` aufnehmen). Zusätzlich braucht die Person Zugriff auf die
