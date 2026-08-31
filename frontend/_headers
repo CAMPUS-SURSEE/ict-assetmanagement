@@ -1,0 +1,45 @@
+# _headers — Kopfzeilen für Netlify.
+#
+# Die Content-Security-Policy ist bewusst eng: erlaubt ist nur, was die
+# Anwendung wirklich braucht. Alles andere blockiert der Browser, auch wenn
+# jemand Code einschleusen könnte.
+#
+#   default-src 'none'       Grundhaltung: gar nichts ist erlaubt.
+#   script-src               eigene Dateien plus jsdelivr für MSAL und den
+#                            QR-Erzeuger. 'unsafe-inline', weil pro Seite ein
+#                            Script-Block direkt im HTML steht (bewusstes
+#                            Muster: eine Seite = eine Datei). Die beiden
+#                            CDN-Dateien sind zusätzlich mit einer
+#                            integrity-Prüfsumme gepinnt.
+#   connect-src              Microsoft Graph, Entra ID und der Power-Platform-
+#                            Host des anonymen Flows für geraet.html.
+#   frame-src                login.microsoftonline.com — MSAL erneuert Token
+#                            still über ein verstecktes iframe.
+#   frame-ancestors 'none'   die Seiten dürfen nirgends eingebettet werden.
+#   form-action 'none'       es gibt keine abschickenden Formulare.
+
+/*
+  Content-Security-Policy: default-src 'none'; script-src 'self' 'unsafe-inline' https://cdn.jsdelivr.net; style-src 'self' 'unsafe-inline'; img-src 'self' data:; font-src 'self'; connect-src 'self' https://graph.microsoft.com https://login.microsoftonline.com https://*.environment.api.powerplatform.com; frame-src https://login.microsoftonline.com; form-action 'none'; base-uri 'none'; frame-ancestors 'none'; object-src 'none'
+  X-Content-Type-Options: nosniff
+  X-Frame-Options: DENY
+  Referrer-Policy: strict-origin-when-cross-origin
+  Permissions-Policy: geolocation=(), microphone=(), camera=(), payment=(), usb=()
+  Cross-Origin-Opener-Policy: same-origin-allow-popups
+
+# Die Verwaltung gehört nicht in Suchmaschinen und nicht in Zwischenspeicher.
+/admin.html
+  X-Robots-Tag: noindex, nofollow
+  Cache-Control: no-store
+
+/setup.html
+  X-Robots-Tag: noindex, nofollow
+  Cache-Control: no-store
+
+/etikette.html
+  X-Robots-Tag: noindex, nofollow
+  Cache-Control: no-store
+
+# konfig.js enthält keine Geheimnisse, soll aber nicht zwischengespeichert
+# werden — sonst wirken Änderungen erst nach Tagen.
+/konfig.js
+  Cache-Control: no-store

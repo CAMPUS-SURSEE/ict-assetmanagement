@@ -1,0 +1,11 @@
+# _redirects — Umleitungen für Netlify.
+#
+# Kurzadresse für die QR-Codes auf den Etiketten. Der Code enthält
+# https://ictlager.campus-sursee.ch/g/42 — das ist kurz genug für einen
+# QR-Code mit grober Rasterung und damit auch aus der Distanz noch scannbar.
+#
+# 302 statt 301: eine dauerhafte Umleitung merkt sich der Browser und
+# umgeht die Seite künftig; falls die Zieladresse einmal ändert, wäre das
+# schwer wieder loszuwerden.
+
+/g/:id    /geraet.html?id=:id    302

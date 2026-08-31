@@ -1,0 +1,1371 @@
+<!DOCTYPE html>
+<html lang="de-CH">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="robots" content="noindex">
+<title>ICT Lager — Verwaltung</title>
+<style>
+  :root {
+    --akzent:       #84B819;
+    --akzent-dkl:   #6f9c14;
+    --dunkel:       #1a1a1a;
+    --dunkel-2:     #232323;
+    --dunkel-linie: #333333;
+    --dunkel-text:  #e8eae4;
+    --dunkel-grau:  #8d8f89;
+    --text:         #111111;
+    --grau:         #6b6d68;
+    --grau-hell:    #9a9c97;
+    --grund:        #f5f6f4;
+    --karte:        #ffffff;
+    --linie:        #e4e5e1;
+    --linie-stark:  #d3d5ce;
+    --rot:          #a13b1e;
+    --radius:       10px;
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  /* hidden muss staerker sein als jede display-Regel weiter unten,
+     sonst bleiben ausgeblendete Knoepfe und Pillen sichtbar. */
+  [hidden] { display: none !important; }
+  html { -webkit-text-size-adjust: 100%; }
+  body {
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+    background: var(--grund);
+    color: var(--text);
+    line-height: 1.5;
+    font-size: 15px;
+  }
+
+  /* ================= Gerüst ================= */
+
+  .app { display: flex; min-height: 100vh; }
+
+  /* ---------- Seitenleiste ---------- */
+
+  .seite {
+    flex: none;
+    width: 232px;
+    background: var(--dunkel);
+    color: var(--dunkel-text);
+    display: flex;
+    flex-direction: column;
+    padding: 22px 16px 16px;
+    position: sticky;
+    top: 0;
+    height: 100vh;
+  }
+  .seite .logo { width: 132px; height: auto; display: block; color: #fff; margin: 0 6px; }
+  .seite .produkt {
+    margin: 16px 6px 26px;
+    font-size: 0.68rem;
+    letter-spacing: 0.2em;
+    text-transform: uppercase;
+    color: var(--dunkel-grau);
+  }
+  .seite nav { display: grid; gap: 2px; }
+  .seite nav button {
+    font: inherit;
+    font-size: 0.92rem;
+    text-align: left;
+    display: flex;
+    align-items: center;
+    gap: 11px;
+    padding: 10px 12px;
+    border: 0;
+    border-radius: 8px;
+    background: transparent;
+    color: var(--dunkel-grau);
+    cursor: pointer;
+  }
+  .seite nav button svg { width: 17px; height: 17px; flex: none; stroke: currentColor; fill: none; stroke-width: 1.6; }
+  .seite nav button:hover { background: var(--dunkel-2); color: var(--dunkel-text); }
+  .seite nav button[aria-current="page"] { background: var(--dunkel-2); color: #fff; font-weight: 500; }
+  .seite nav button[aria-current="page"] svg { color: var(--akzent); }
+
+  .seite .fuss { margin-top: auto; padding-top: 18px; border-top: 1px solid var(--dunkel-linie); }
+  .seite .fuss .name {
+    font-size: 0.84rem;
+    padding: 0 6px;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+  .seite .fuss .adresse {
+    font-size: 0.74rem;
+    color: var(--dunkel-grau);
+    padding: 0 6px 10px;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+  .seite .fuss button {
+    font: inherit;
+    font-size: 0.82rem;
+    padding: 7px 12px;
+    width: 100%;
+    text-align: left;
+    border: 1px solid var(--dunkel-linie);
+    border-radius: 8px;
+    background: transparent;
+    color: var(--dunkel-grau);
+    cursor: pointer;
+  }
+  .seite .fuss button:hover { color: #fff; border-color: #4a4a4a; }
+
+  /* ---------- Inhalt ---------- */
+
+  .inhalt { flex: 1; min-width: 0; padding: 30px 34px 60px; }
+  .kopf { display: flex; align-items: flex-end; gap: 16px; flex-wrap: wrap; margin-bottom: 22px; }
+  .kopf h1 { font-size: 1.35rem; font-weight: 600; letter-spacing: -0.01em; }
+  .kopf .unter { font-size: 0.88rem; color: var(--grau); }
+  .kopf .rechts { margin-left: auto; display: flex; gap: 10px; flex-wrap: wrap; }
+
+  .ansicht[hidden] { display: none; }
+
+  /* ---------- Bausteine ---------- */
+
+  .karte {
+    background: var(--karte);
+    border: 1px solid var(--linie);
+    border-radius: var(--radius);
+    padding: 20px;
+  }
+  .karte h2 {
+    font-size: 0.7rem;
+    font-weight: 600;
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+    color: var(--grau);
+    margin-bottom: 14px;
+  }
+
+  button.knopf, a.knopf {
+    font: inherit;
+    font-size: 0.88rem;
+    font-weight: 500;
+    padding: 9px 16px;
+    border-radius: 8px;
+    border: 1px solid var(--linie-stark);
+    background: #fff;
+    color: var(--text);
+    cursor: pointer;
+    text-decoration: none;
+    display: inline-block;
+    white-space: nowrap;
+  }
+  button.knopf:hover, a.knopf:hover { border-color: #b9bcb2; }
+  button.knopf.haupt, a.knopf.haupt {
+    background: var(--akzent); border-color: var(--akzent); color: #17210a; font-weight: 600;
+  }
+  button.knopf.haupt:hover, a.knopf.haupt:hover { background: var(--akzent-dkl); border-color: var(--akzent-dkl); }
+  button.knopf.gefahr { color: var(--rot); border-color: #e6cdc5; }
+  button.knopf.gefahr:hover { background: #fdf3f0; border-color: #d9b0a4; }
+  button.knopf:disabled, a.knopf[aria-disabled="true"] { opacity: 0.45; cursor: default; }
+
+  input[type="text"], input[type="search"], input[type="date"], input[type="number"],
+  select, textarea {
+    font: inherit;
+    font-size: 0.9rem;
+    width: 100%;
+    padding: 9px 11px;
+    border: 1px solid var(--linie-stark);
+    border-radius: 8px;
+    background: #fff;
+    color: var(--text);
+  }
+  input:focus, select:focus, textarea:focus {
+    outline: 2px solid rgba(132, 184, 25, 0.45);
+    outline-offset: -1px;
+    border-color: var(--akzent);
+  }
+  textarea { resize: vertical; min-height: 76px; line-height: 1.5; }
+  label.feld { display: block; }
+  label.feld > span {
+    display: block;
+    font-size: 0.76rem;
+    font-weight: 500;
+    color: var(--grau);
+    margin-bottom: 5px;
+  }
+
+  .marke {
+    display: inline-block;
+    padding: 2px 9px;
+    border-radius: 999px;
+    font-size: 0.75rem;
+    font-weight: 500;
+    border: 1px solid var(--linie);
+    background: #fafbf9;
+    color: var(--grau);
+    white-space: nowrap;
+  }
+  .marke.s-Aktiv        { background: #f2f8e4; border-color: #d9e9b4; color: #4a6a08; }
+  .marke.s-Lager        { background: #f1f2ef; border-color: #dfe1db; color: #4a4c47; }
+  .marke.s-Reparatur    { background: #fdf3e6; border-color: #f0dcc0; color: #7a5210; }
+  .marke.s-Ausgemustert { background: #f5f5f5; border-color: #e6e6e6; color: #8b8b8b; }
+
+  .meldung { padding: 14px 16px; border-radius: var(--radius); font-size: 0.9rem; margin-bottom: 16px; }
+  .meldung.fehler { background: #fdf1ed; border: 1px solid #eed6cd; color: var(--rot); }
+  .meldung.info   { background: #fff; border: 1px solid var(--linie); color: var(--grau); }
+  .meldung[hidden] { display: none; }
+
+  .leer { padding: 46px 20px; text-align: center; color: var(--grau); font-size: 0.92rem; }
+
+  /* ---------- Dashboard ---------- */
+
+  .kennzahlen {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
+    gap: 12px;
+    margin-bottom: 16px;
+  }
+  .kennzahl { background: var(--karte); border: 1px solid var(--linie); border-radius: var(--radius); padding: 16px 18px; }
+  .kennzahl .wert { font-size: 1.9rem; font-weight: 600; letter-spacing: -0.02em; line-height: 1.15; }
+  .kennzahl .bez { font-size: 0.78rem; color: var(--grau); margin-top: 3px; }
+  .kennzahl.betont .wert { color: var(--rot); }
+  .kennzahl.gut .wert { color: #5d8410; }
+
+  .spalten2 { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); gap: 16px; align-items: start; }
+  @media (max-width: 980px) { .spalten2 { grid-template-columns: minmax(0, 1fr); } }
+
+  .balken { display: grid; gap: 10px; }
+  .balken .reihe { display: grid; grid-template-columns: 96px 1fr 34px; gap: 12px; align-items: center; font-size: 0.86rem; }
+  .balken .bez { color: var(--grau); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+  .balken .spur { height: 8px; background: #eef0eb; border-radius: 999px; overflow: hidden; }
+  .balken .fuellung { height: 100%; background: var(--akzent); border-radius: 999px; }
+  .balken .zahl { text-align: right; font-variant-numeric: tabular-nums; color: var(--text); }
+
+  .eol-liste { display: grid; gap: 0; }
+  .eol-liste .eintrag {
+    display: flex; align-items: center; gap: 12px;
+    padding: 10px 0; border-bottom: 1px solid var(--linie);
+    font-size: 0.88rem; cursor: pointer;
+  }
+  .eol-liste .eintrag:last-child { border-bottom: 0; }
+  .eol-liste .eintrag:hover .nam { text-decoration: underline; }
+  .eol-liste .nam { flex: 1; min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+  .eol-liste .dat { flex: none; font-variant-numeric: tabular-nums; color: var(--grau); }
+  .eol-liste .dat.ueber { color: var(--rot); font-weight: 500; }
+
+  /* ---------- Geräteliste ---------- */
+
+  .werkzeuge { display: flex; gap: 10px; flex-wrap: wrap; margin-bottom: 14px; }
+  .werkzeuge .suche { flex: 1; min-width: 220px; }
+  .werkzeuge select { width: auto; min-width: 140px; }
+
+  .tabellenkasten {
+    background: var(--karte);
+    border: 1px solid var(--linie);
+    border-radius: var(--radius);
+    overflow-x: auto;
+  }
+  table { width: 100%; border-collapse: collapse; font-size: 0.88rem; }
+  thead th {
+    text-align: left;
+    font-size: 0.72rem;
+    font-weight: 600;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    color: var(--grau);
+    padding: 12px 14px;
+    border-bottom: 1px solid var(--linie);
+    white-space: nowrap;
+    background: #fbfcfa;
+    position: sticky;
+    top: 0;
+  }
+  thead th.sortierbar { cursor: pointer; user-select: none; }
+  thead th.sortierbar:hover { color: var(--text); }
+  thead th .pfeil { color: var(--akzent-dkl); font-size: 0.8em; }
+  tbody td { padding: 11px 14px; border-bottom: 1px solid var(--linie); vertical-align: middle; }
+  tbody tr:last-child td { border-bottom: 0; }
+  tbody tr { cursor: pointer; }
+  tbody tr:hover { background: #fafbf9; }
+  td.name { font-weight: 500; }
+  td.mono { font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace; font-size: 0.85em; color: var(--grau); }
+  td.grau { color: var(--grau); }
+
+  /* ---------- Etiketten-Ansicht ---------- */
+
+  .wahlliste { max-height: 62vh; overflow: auto; }
+  .wahlliste label {
+    display: flex; align-items: center; gap: 12px;
+    padding: 9px 4px; border-bottom: 1px solid var(--linie);
+    font-size: 0.9rem; cursor: pointer;
+  }
+  .wahlliste label:last-child { border-bottom: 0; }
+  .wahlliste input[type="checkbox"] { width: 16px; height: 16px; flex: none; accent-color: var(--akzent); }
+  .wahlliste .nam { flex: 1; min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+  .wahlliste .neben { color: var(--grau); font-size: 0.82rem; white-space: nowrap; }
+
+  /* ---------- Detail (Überlagerung) ---------- */
+
+  .ueberlagerung {
+    position: fixed; inset: 0; z-index: 20;
+    background: rgba(17, 17, 17, 0.42);
+    display: flex; justify-content: flex-end;
+  }
+  .ueberlagerung[hidden] { display: none; }
+  .tafel {
+    width: min(680px, 100%);
+    background: var(--karte);
+    height: 100%;
+    overflow-y: auto;
+    display: flex; flex-direction: column;
+    box-shadow: -18px 0 44px rgba(0, 0, 0, 0.12);
+  }
+  .tafel .tkopf {
+    position: sticky; top: 0; z-index: 2;
+    background: var(--karte);
+    border-bottom: 1px solid var(--linie);
+    padding: 18px 24px;
+    display: flex; align-items: center; gap: 14px;
+  }
+  .tafel .tkopf h2 { font-size: 1.05rem; font-weight: 600; flex: 1; min-width: 0;
+    overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+  .tafel .tkopf .zu {
+    font: inherit; font-size: 1.35rem; line-height: 1;
+    border: 0; background: transparent; color: var(--grau); cursor: pointer; padding: 4px 8px;
+  }
+  .tafel .tkoerper { padding: 22px 24px 28px; flex: 1; }
+  .tafel .tfuss {
+    position: sticky; bottom: 0;
+    background: var(--karte);
+    border-top: 1px solid var(--linie);
+    padding: 14px 24px;
+    display: flex; gap: 10px; flex-wrap: wrap; align-items: center;
+  }
+  .tafel .tfuss .rechts { margin-left: auto; display: flex; gap: 10px; flex-wrap: wrap; }
+
+  .raster { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; }
+  .raster .voll { grid-column: 1 / -1; }
+  @media (max-width: 620px) { .raster { grid-template-columns: 1fr; } }
+
+  .abschnitt { margin-top: 26px; padding-top: 20px; border-top: 1px solid var(--linie); }
+  .abschnitt h3 {
+    font-size: 0.7rem; font-weight: 600; letter-spacing: 0.14em;
+    text-transform: uppercase; color: var(--grau); margin-bottom: 14px;
+  }
+
+  .verlauf { display: grid; gap: 0; }
+  .verlauf .v {
+    padding: 12px 0 12px 16px;
+    border-left: 2px solid var(--linie);
+    position: relative;
+    font-size: 0.88rem;
+  }
+  .verlauf .v::before {
+    content: ""; position: absolute; left: -5px; top: 17px;
+    width: 8px; height: 8px; border-radius: 50%;
+    background: var(--linie-stark);
+  }
+  .verlauf .v:first-child::before { background: var(--akzent); }
+  .verlauf .v .kopfzeile { display: flex; gap: 10px; flex-wrap: wrap; align-items: baseline; }
+  .verlauf .v .aktion { font-weight: 600; }
+  .verlauf .v .wann { color: var(--grau-hell); font-size: 0.8rem; }
+  .verlauf .v .wer { color: var(--grau); font-size: 0.8rem; }
+  .verlauf .v .txt { margin-top: 3px; color: var(--grau); white-space: pre-wrap; overflow-wrap: anywhere; }
+
+  .qr-kasten { display: none; margin-top: 16px; text-align: center; }
+  .qr-kasten.offen { display: block; }
+  .qr-kasten .bild { width: 168px; height: 168px; margin: 0 auto; }
+  .qr-kasten .bild svg { width: 100%; height: 100%; display: block; }
+  .qr-kasten .adr {
+    margin-top: 10px; font-size: 0.8rem; color: var(--grau);
+    font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+    overflow-wrap: anywhere;
+  }
+
+  /* ---------- schmale Bildschirme ---------- */
+
+  @media (max-width: 820px) {
+    .app { flex-direction: column; }
+    .seite {
+      width: 100%; height: auto; position: static;
+      flex-direction: row; align-items: center; flex-wrap: wrap;
+      gap: 12px 18px; padding: 14px 18px;
+    }
+    .seite .logo { width: 108px; margin: 0; }
+    .seite .produkt { display: none; }
+    .seite nav { grid-auto-flow: column; gap: 4px; }
+    .seite nav button span { display: none; }
+    .seite nav button { padding: 9px 11px; }
+    .seite .fuss { margin: 0 0 0 auto; padding: 0; border: 0; display: flex; align-items: center; gap: 12px; }
+    .seite .fuss .name, .seite .fuss .adresse { display: none; }
+    .inhalt { padding: 22px 18px 48px; }
+  }
+</style>
+</head>
+<body>
+
+<div class="app">
+
+  <!-- ================= Seitenleiste ================= -->
+  <aside class="seite">
+    <svg class="logo" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 710.4 168.6" role="img" aria-label="Campus Sursee"><path fill="currentColor" d="M37.4 12c10.9 0 20.2 5.9 23.8 15.1l.4 1.1 11.7-5.3-.4-1C67.4 8.4 53.8 0 37.3 0 20 0 4.7 10.3.1 25.1L0 55.2l.1.3C4.7 70.3 20 80.6 37.3 80.6c16.4 0 30.1-8.4 35.6-21.9l.4-1-11.7-5.3-.4 1.1c-3.6 9.2-12.9 15.1-23.8 15.1-11.4 0-21.8-7.1-24.5-16.6V28.6C15.5 19.1 26 12 37.4 12zM307.4.8H275v78h12.8V51.5h19.6c11.7 0 22.6-6.8 25.8-16.1l.1-18.3-.1-.4C330 7.6 319.1.8 307.4.8zm12.9 19.7V32c-2 4.6-7.6 7.8-13.7 7.8h-18.8V12.7h18.8c6.1 0 11.7 3.2 13.7 7.8zM400.9 59.4c-2.1 4.6-8.6 9.1-18.5 9.1-9.7 0-16.3-4.5-18.5-9.1V.8h-12.8v62.6l.1.2c4.2 10 16.7 16.8 31.2 16.8 14.4 0 27-6.7 31.3-16.8l.1-.2V.8h-12.9v58.6zM212.4 49.9 187.5.8h-16.9v78.1H183V18.5l24.7 48.4h9.3l24.7-48.4v60.4h12.5V.8h-17zM461.5 80.5c13.3 0 24.9-6.5 29-16.1l.1-.2V50.5l-.1-.2c-2.6-6.3-8.5-11.4-16.2-13.9-4.5-1.6-8.1-2.1-11.6-2.6-2.9-.4-5.7-.8-8.8-1.8-4.3-1.5-7-3.5-8.4-6.5v-5.6c2.3-4.9 8.3-8.1 15.5-8.1 8.4 0 15.3 4.3 18.3 11.4l.5 1.1 11.4-5.4-.4-1C486.6 7 475 0 461.2 0c-12.9 0-24.3 6.5-28.3 16.2l-.1.2v12.4l.1.4c2.4 6.2 8.1 11.1 16.1 13.8 4.4 1.5 7.9 2 11.2 2.4 3 .4 5.9.8 9.1 1.9 4.2 1.4 6.9 3.6 8.4 6.7v6.4c-2.3 5-8.6 8.2-16.2 8.2-8.8 0-16-4.4-19.2-11.9l-.5-1.1-11.1 5.8.4.9c4.2 11 16.4 18.2 30.4 18.2zM112.8.8 82.8 75v3.8h12l7.3-18.6h36.2l7.3 18.6h12.2v-3.9L127.8.8h-15zm20.9 47.7h-26.9l13.5-34 13.4 34zM710.4 101V89H656v78h54.4v-12h-41.6v-21.5h38.4v-11.9h-38.4V101zM303.7 99.9c8.4 0 15.3 4.3 18.3 11.4l.5 1.1 11.4-5.4-.4-1c-4.2-10.9-15.9-17.9-29.6-17.9-12.9 0-24.3 6.5-28.3 16.2l-.1.2v12.4l.1.4c2.4 6.2 8.1 11.1 16.1 13.8 4.4 1.5 7.9 2 11.2 2.4 3 .4 5.9.8 9.1 1.9 4.2 1.4 6.9 3.6 8.4 6.7v6.4c-2.3 5-8.6 8.2-16.2 8.2-8.8 0-16-4.4-19.2-11.8l-.5-1.1-11.1 5.8.4 1c4.2 10.7 16.5 17.9 30.5 17.9 13.3 0 24.9-6.5 29-16.1l.1-.2v-13.7l-.1-.2c-2.6-6.3-8.5-11.4-16.2-13.9-4.5-1.6-8.1-2.1-11.6-2.6-2.9-.4-5.7-.8-8.8-1.8-4.3-1.5-7-3.5-8.4-6.5v-5.6c2.1-4.8 8.2-8 15.4-8zM537.5 99.9c8.4 0 15.3 4.3 18.3 11.4l.5 1.1 11.4-5.4-.4-1c-4.2-10.9-15.8-17.9-29.6-17.9-12.9 0-24.3 6.5-28.3 16.2l-.1.2v12.4l.1.4c2.4 6.2 8.1 11.1 16.1 13.8 4.4 1.5 7.9 2 11.2 2.4 3 .4 5.9.8 9.1 1.9 4.2 1.4 6.9 3.6 8.4 6.7v6.4c-2.3 5-8.6 8.2-16.2 8.2-8.8 0-16-4.4-19.2-11.8l-.5-1.1-11.1 5.8.4.9c4.2 10.7 16.5 17.9 30.5 17.9 13.3 0 24.9-6.5 29-16.1l.1-.2v-13.7l-.1-.2c-2.6-6.3-8.5-11.4-16.2-13.9-4.5-1.6-8.1-2.1-11.6-2.6-2.9-.4-5.7-.8-8.8-1.8-4.3-1.5-7-3.5-8.4-6.5v-5.6c2.1-4.7 8.1-7.9 15.4-7.9zM491.3 121.3l.1-15.9-.1-.4c-3.2-9.3-14-16-25.7-16h-33.8v78h12.8v-29.6h16.8L481 167h12.4v-4l-18.3-27.2c7.8-2.6 13.9-8 16.2-14.5zm-12.8-12.7v9.4c-2 4.6-7.6 7.8-13.7 7.8h-20.2v-25h20.2c6.2 0 11.8 3.2 13.7 7.8zM583.6 167h54.5v-12h-41.7v-21.5h38.4v-11.9h-38.4V101h41.7V89h-54.5zM400.8 147.5c-2.1 4.6-8.6 9.1-18.5 9.1-9.7 0-16.3-4.5-18.5-9.1V89H351v62.6l.1.2c4.2 10 16.7 16.8 31.2 16.8 14.4 0 27-6.7 31.3-16.8l.1-.2V88.9h-12.9v58.6z"/><path fill="#84B819" d="M511.2 83.8c0-6.3-5.1-11.4-11.4-11.4-6.3 0-11.4 5.1-11.4 11.4s5.1 11.4 11.4 11.4c6.3-.1 11.4-5.1 11.4-11.4z"/></svg>
+    <div class="produkt">ICT Lager</div>
+
+    <nav>
+      <button type="button" data-ansicht="dashboard" aria-current="page">
+        <svg viewBox="0 0 24 24"><rect x="3.5" y="3.5" width="7" height="7" rx="1.5"/><rect x="13.5" y="3.5" width="7" height="7" rx="1.5"/><rect x="3.5" y="13.5" width="7" height="7" rx="1.5"/><rect x="13.5" y="13.5" width="7" height="7" rx="1.5"/></svg>
+        <span>Dashboard</span>
+      </button>
+      <button type="button" data-ansicht="geraete">
+        <svg viewBox="0 0 24 24"><rect x="2.5" y="4.5" width="19" height="12" rx="1.5"/><line x1="8" y1="20" x2="16" y2="20"/><line x1="12" y1="16.5" x2="12" y2="20"/></svg>
+        <span>Geräte</span>
+      </button>
+      <button type="button" data-ansicht="etiketten">
+        <svg viewBox="0 0 24 24"><path d="M3.5 8.5h17v10a1.5 1.5 0 0 1-1.5 1.5H5a1.5 1.5 0 0 1-1.5-1.5z"/><path d="M6.5 8.5V5.5a1.5 1.5 0 0 1 1.5-1.5h8a1.5 1.5 0 0 1 1.5 1.5v3"/><rect x="7.5" y="11.5" width="5" height="5" rx="0.6"/></svg>
+        <span>Etiketten</span>
+      </button>
+    </nav>
+
+    <div class="fuss">
+      <div class="name" id="konto-name"></div>
+      <div class="adresse" id="konto-adresse"></div>
+      <button type="button" id="btn-abmelden">Abmelden</button>
+    </div>
+  </aside>
+
+  <!-- ================= Inhalt ================= -->
+  <main class="inhalt">
+
+    <div class="meldung fehler" id="global-fehler" hidden></div>
+
+    <!-- ---------- Dashboard ---------- -->
+    <section class="ansicht" id="a-dashboard">
+      <div class="kopf">
+        <div>
+          <h1>Dashboard</h1>
+          <div class="unter" id="db-stand">wird geladen …</div>
+        </div>
+        <div class="rechts">
+          <button type="button" class="knopf" id="btn-neuladen">Neu laden</button>
+        </div>
+      </div>
+
+      <div class="kennzahlen" id="db-kennzahlen"></div>
+
+      <div class="spalten2">
+        <div class="karte">
+          <h2>Verteilung nach Kategorie</h2>
+          <div class="balken" id="db-kategorien"></div>
+        </div>
+        <div class="karte">
+          <h2>End of Life</h2>
+          <div class="eol-liste" id="db-eol"></div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ---------- Geräte ---------- -->
+    <section class="ansicht" id="a-geraete" hidden>
+      <div class="kopf">
+        <div>
+          <h1>Geräte</h1>
+          <div class="unter" id="ge-anzahl"></div>
+        </div>
+        <div class="rechts">
+          <button type="button" class="knopf haupt" id="btn-neu">Neues Gerät</button>
+        </div>
+      </div>
+
+      <div class="werkzeuge">
+        <div class="suche">
+          <input type="search" id="ge-suche" placeholder="Suchen — Name, Asset-Nr., Seriennummer, IP, MAC, Owner"
+                 autocomplete="off" spellcheck="false">
+        </div>
+        <select id="ge-kategorie" aria-label="Kategorie"></select>
+        <select id="ge-status" aria-label="Status"></select>
+      </div>
+
+      <div class="tabellenkasten">
+        <table>
+          <thead>
+            <tr>
+              <th class="sortierbar" data-feld="name">Name</th>
+              <th class="sortierbar" data-feld="assetNr">Asset-Nr.</th>
+              <th class="sortierbar" data-feld="kategorie">Kategorie</th>
+              <th class="sortierbar" data-feld="status">Status</th>
+              <th class="sortierbar" data-feld="standort">Standort</th>
+              <th class="sortierbar" data-feld="owner">Owner</th>
+              <th class="sortierbar" data-feld="endOfLife">EOL</th>
+            </tr>
+          </thead>
+          <tbody id="ge-koerper"></tbody>
+        </table>
+        <div class="leer" id="ge-leer" hidden></div>
+      </div>
+    </section>
+
+    <!-- ---------- Etiketten ---------- -->
+    <section class="ansicht" id="a-etiketten" hidden>
+      <div class="kopf">
+        <div>
+          <h1>Etiketten</h1>
+          <div class="unter">Geräte auswählen und die Druckvorschau öffnen.</div>
+        </div>
+        <div class="rechts">
+          <button type="button" class="knopf" id="btn-et-nichts">Auswahl aufheben</button>
+          <button type="button" class="knopf haupt" id="btn-et-drucken" disabled>Druckvorschau</button>
+        </div>
+      </div>
+
+      <div class="werkzeuge">
+        <div class="suche">
+          <input type="search" id="et-suche" placeholder="Geräte suchen" autocomplete="off" spellcheck="false">
+        </div>
+        <button type="button" class="knopf" id="btn-et-alle">Alle sichtbaren auswählen</button>
+      </div>
+
+      <div class="karte">
+        <h2><span id="et-anzahl">0</span> ausgewählt</h2>
+        <div class="wahlliste" id="et-liste"></div>
+      </div>
+    </section>
+
+  </main>
+</div>
+
+
+<!-- ================= Detail-Tafel ================= -->
+<div class="ueberlagerung" id="tafel-hintergrund" hidden>
+  <div class="tafel" role="dialog" aria-modal="true" aria-labelledby="t-titel">
+
+    <div class="tkopf">
+      <h2 id="t-titel">Gerät</h2>
+      <button type="button" class="zu" id="btn-schliessen" aria-label="Schliessen">&times;</button>
+    </div>
+
+    <div class="tkoerper">
+      <div class="meldung fehler" id="t-fehler" hidden></div>
+
+      <form id="t-form" autocomplete="off">
+        <div class="raster">
+          <label class="feld voll"><span>Gerätename *</span>
+            <input type="text" id="f-name" maxlength="255" required></label>
+
+          <label class="feld"><span>Asset-Nr.</span>
+            <input type="text" id="f-assetNr" maxlength="255"></label>
+          <label class="feld"><span>Seriennummer</span>
+            <input type="text" id="f-seriennummer" maxlength="255"></label>
+
+          <label class="feld"><span>Kategorie *</span>
+            <select id="f-kategorie" required></select></label>
+          <label class="feld"><span>Status *</span>
+            <select id="f-status" required></select></label>
+
+          <label class="feld"><span>Hersteller</span>
+            <input type="text" id="f-hersteller" maxlength="255"></label>
+          <label class="feld"><span>Modell</span>
+            <input type="text" id="f-modell" maxlength="255"></label>
+
+          <label class="feld"><span>IP-Adresse</span>
+            <input type="text" id="f-ipAdresse" maxlength="255"></label>
+          <label class="feld"><span>MAC-Adresse</span>
+            <input type="text" id="f-macAdresse" maxlength="255"></label>
+
+          <label class="feld"><span>Owner (Name oder E-Mail)</span>
+            <input type="text" id="f-owner" maxlength="255"></label>
+          <label class="feld"><span>Standort</span>
+            <input type="text" id="f-standort" maxlength="255"></label>
+
+          <label class="feld"><span>Anschaffungsdatum</span>
+            <input type="date" id="f-anschaffungsdatum"></label>
+          <label class="feld"><span>Preis (CHF)</span>
+            <input type="number" id="f-preis" step="0.05" min="0"></label>
+
+          <label class="feld"><span>Garantie bis</span>
+            <input type="date" id="f-garantieBis"></label>
+          <label class="feld"><span>End of Life</span>
+            <input type="date" id="f-endOfLife"></label>
+
+          <label class="feld voll"><span>Öffentliche Beschreibung — erscheint auf der Geräteseite beim QR-Code</span>
+            <textarea id="f-beschreibungOeffentlich" maxlength="4000"></textarea></label>
+
+          <label class="feld voll"><span>Interne Notizen — bleiben intern</span>
+            <textarea id="f-notizenIntern" maxlength="4000"></textarea></label>
+        </div>
+      </form>
+
+      <div class="qr-kasten" id="t-qr">
+        <div class="bild" id="t-qr-bild"></div>
+        <div class="adr" id="t-qr-adresse"></div>
+      </div>
+
+      <div class="abschnitt" id="t-verlauf-abschnitt">
+        <h3>Verlauf</h3>
+        <div class="raster" style="grid-template-columns: 180px 1fr auto; align-items: end;">
+          <label class="feld"><span>Aktion</span>
+            <input type="text" id="v-aktion" placeholder="z.B. Reparatur" maxlength="120"></label>
+          <label class="feld"><span>Notiz</span>
+            <input type="text" id="v-text" placeholder="Was ist passiert?" maxlength="1000"></label>
+          <button type="button" class="knopf" id="btn-v-anlegen">Eintrag hinzufügen</button>
+        </div>
+        <div class="verlauf" id="t-verlauf" style="margin-top:16px"></div>
+      </div>
+    </div>
+
+    <div class="tfuss">
+      <button type="button" class="knopf gefahr" id="btn-loeschen">Löschen</button>
+      <button type="button" class="knopf" id="btn-qr">QR anzeigen</button>
+      <button type="button" class="knopf" id="btn-etikette">Etikette drucken</button>
+      <a class="knopf" id="btn-oeffentlich" target="_blank" rel="noopener">Öffentliche Seite</a>
+      <div class="rechts">
+        <button type="button" class="knopf" id="btn-abbrechen">Schliessen</button>
+        <button type="button" class="knopf haupt" id="btn-speichern">Speichern</button>
+      </div>
+    </div>
+
+  </div>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/@azure/msal-browser@4.30.0/lib/msal-browser.min.js"
+        integrity="sha384-RGxxfG5yRS8DLU7ZJ8OoLhbV/BsJFHyPuMVHrTLbpj3t5Z15LnviJmaznKY/a7LZ"
+        crossorigin="anonymous" referrerpolicy="no-referrer"></script>
+<script src="https://cdn.jsdelivr.net/npm/qrcode-generator@1.4.4/qrcode.min.js"
+        integrity="sha384-lQXOAyZwHXE55JFyrOMB7nY2Wv+m5ZWNtJcHrd1rceRQXAYNLak8ukN5TjBTcIwz"
+        crossorigin="anonymous" referrerpolicy="no-referrer"></script>
+<script src="konfig.js"></script>
+<script src="auth.js"></script>
+<script src="graph.js"></script>
+<script>
+"use strict";
+
+/* ====================================================================
+   admin.html — Verwaltung des ICT-Lagers.
+
+   Eine Seite, drei Ansichten (Dashboard, Geräte, Etiketten) und eine
+   Detail-Tafel, die von rechts einfährt. Die Geräte werden EINMAL geladen
+   und danach im Browser gefiltert und sortiert; das entspricht dem Vorgehen
+   in graph.js und ist bei einigen hundert Geräten deutlich schneller als
+   serverseitige Filter.
+
+   Fremder Inhalt (Gerätenamen, Notizen, Fehlermeldungen von Graph) wird
+   ausschliesslich über textContent gesetzt, nie über innerHTML. Damit ist
+   Cross-Site-Scripting ausgeschlossen. Die einzige Ausnahme ist das vom
+   QR-Erzeuger gebaute SVG, das keine fremden Daten enthält.
+   ==================================================================== */
+
+const el = id => document.getElementById(id);
+
+/* Bezeichnungen der Felder — für die Verlaufseinträge beim Ändern. */
+const FELD_BEZEICHNUNG = {
+  name: "Gerätename",
+  assetNr: "Asset-Nr.",
+  kategorie: "Kategorie",
+  status: "Status",
+  seriennummer: "Seriennummer",
+  hersteller: "Hersteller",
+  modell: "Modell",
+  ipAdresse: "IP-Adresse",
+  macAdresse: "MAC-Adresse",
+  owner: "Owner",
+  standort: "Standort",
+  anschaffungsdatum: "Anschaffungsdatum",
+  endOfLife: "End of Life",
+  garantieBis: "Garantie bis",
+  preis: "Preis",
+  notizenIntern: "Interne Notizen",
+  beschreibungOeffentlich: "Öffentliche Beschreibung"
+};
+
+const FELDER = Object.keys(FELD_BEZEICHNUNG);
+
+
+/* ---------- Zustand ---------- */
+
+let geraete = [];              // alle Geräte, so wie zuletzt geladen
+let aktuell = null;            // das Gerät in der Detail-Tafel, null = neu
+let standBeimOeffnen = null;   // Formularinhalt beim Öffnen, für den Dirty-Check
+let sortierFeld = "name";
+let sortierAb = false;         // absteigend?
+const etikettenWahl = new Set(); // ausgewählte IDs in der Etiketten-Ansicht
+
+
+/* ==================================================================== */
+/* Kleine Helfer                                                        */
+/* ==================================================================== */
+
+function fehlerZeigen(knotenId, e) {
+  const k = el(knotenId);
+  if (!e) { k.hidden = true; k.textContent = ""; return; }
+  k.textContent = (e && e.message) ? e.message : String(e);
+  k.hidden = false;
+}
+
+/* Baut ein Element mit Text — spart überall den Dreisatz aus
+   createElement / className / textContent. */
+function knoten(tag, klasse, text) {
+  const k = document.createElement(tag);
+  if (klasse) k.className = klasse;
+  if (text !== undefined && text !== null) k.textContent = text;
+  return k;
+}
+
+function auswahlFuellen(select, werte, ersteZeile) {
+  select.textContent = "";
+  if (ersteZeile !== undefined) {
+    select.appendChild(new Option(ersteZeile, ""));
+  }
+  for (const w of werte) select.appendChild(new Option(w, w));
+}
+
+function statusMarke(status) {
+  const m = knoten("span", "marke", status || "");
+  // Nur bekannte Werte dürfen eine Klasse setzen.
+  if (STATUS.indexOf(status) >= 0) m.className = "marke s-" + status;
+  return m;
+}
+
+
+/* ==================================================================== */
+/* Ansichten umschalten                                                 */
+/* ==================================================================== */
+
+function ansichtZeigen(name) {
+  for (const abschnitt of document.querySelectorAll(".ansicht")) {
+    abschnitt.hidden = abschnitt.id !== "a-" + name;
+  }
+  for (const knopf of document.querySelectorAll(".seite nav button")) {
+    if (knopf.dataset.ansicht === name) knopf.setAttribute("aria-current", "page");
+    else knopf.removeAttribute("aria-current");
+  }
+  if (name === "etiketten") etikettenZeichnen();
+  location.hash = name;
+}
+
+for (const knopf of document.querySelectorAll(".seite nav button")) {
+  knopf.addEventListener("click", () => ansichtZeigen(knopf.dataset.ansicht));
+}
+
+
+/* ==================================================================== */
+/* Daten laden                                                          */
+/* ==================================================================== */
+
+async function ladenGeraete() {
+  fehlerZeigen("global-fehler", null);
+  el("db-stand").textContent = "wird geladen …";
+  try {
+    geraete = await Graph.geraete();
+  } catch (e) {
+    fehlerZeigen("global-fehler", e);
+    el("db-stand").textContent = "nicht geladen";
+    return;
+  }
+  el("db-stand").textContent = "Stand " + Hilfe.zeitpunktText(new Date().toISOString());
+  dashboardZeichnen();
+  tabelleZeichnen();
+  etikettenZeichnen();
+}
+
+el("btn-neuladen").addEventListener("click", ladenGeraete);
+
+
+/* ==================================================================== */
+/* Dashboard                                                            */
+/* ==================================================================== */
+
+function kennzahl(wert, bezeichnung, klasse) {
+  const k = knoten("div", "kennzahl" + (klasse ? " " + klasse : ""));
+  k.appendChild(knoten("div", "wert", String(wert)));
+  k.appendChild(knoten("div", "bez", bezeichnung));
+  return k;
+}
+
+/* EOL-Zustand eines Geräts: "" (kein Datum / weit weg), "bald" oder "vorbei".
+   Ausgemusterte Geräte haben bewusst KEINEN Zustand: dass ein längst
+   ausgemustertes Gerät sein End of Life überschritten hat, ist keine Nachricht.
+   Weil Kennzahlen, Liste und Tabelle dieselbe Funktion benutzen, zählen sie
+   auch garantiert dasselbe. */
+function eolZustand(g) {
+  if (!g.endOfLife) return "";
+  if (g.status === "Ausgemustert") return "";
+  const heute = Hilfe.heute();
+  if (g.endOfLife < heute) return "vorbei";
+  if (g.endOfLife <= Hilfe.inMonaten(6)) return "bald";
+  return "";
+}
+
+function dashboardZeichnen() {
+  /* ---- Kennzahlen ---- */
+  const proStatus = {};
+  for (const s of STATUS) proStatus[s] = 0;
+  let vorbei = 0, bald = 0;
+  for (const g of geraete) {
+    if (proStatus[g.status] === undefined) proStatus[g.status] = 0;
+    proStatus[g.status]++;
+    const z = eolZustand(g);
+    if (z === "vorbei") vorbei++;
+    else if (z === "bald") bald++;
+  }
+
+  const kasten = el("db-kennzahlen");
+  kasten.textContent = "";
+  kasten.appendChild(kennzahl(geraete.length, "Geräte total"));
+  for (const s of STATUS) {
+    kasten.appendChild(kennzahl(proStatus[s] || 0, s, s === "Aktiv" ? "gut" : null));
+  }
+  kasten.appendChild(kennzahl(vorbei, "EOL überschritten", vorbei ? "betont" : null));
+  kasten.appendChild(kennzahl(bald, "EOL in unter 6 Monaten", bald ? "betont" : null));
+
+  /* ---- Verteilung nach Kategorie ---- */
+  const proKategorie = {};
+  for (const k of KATEGORIEN) proKategorie[k] = 0;
+  for (const g of geraete) {
+    const k = g.kategorie || "Sonstiges";
+    if (proKategorie[k] === undefined) proKategorie[k] = 0;
+    proKategorie[k]++;
+  }
+  const groesste = Math.max(1, ...Object.values(proKategorie));
+
+  const bk = el("db-kategorien");
+  bk.textContent = "";
+  const reihenfolge = Object.keys(proKategorie)
+    .sort((a, b) => proKategorie[b] - proKategorie[a] || a.localeCompare(b, "de-CH"));
+  for (const kat of reihenfolge) {
+    const reihe = knoten("div", "reihe");
+    reihe.appendChild(knoten("div", "bez", kat));
+    const spur = knoten("div", "spur");
+    const fuellung = knoten("div", "fuellung");
+    fuellung.style.width = Math.round(proKategorie[kat] / groesste * 100) + "%";
+    spur.appendChild(fuellung);
+    reihe.appendChild(spur);
+    reihe.appendChild(knoten("div", "zahl", String(proKategorie[kat])));
+    bk.appendChild(reihe);
+  }
+  if (!geraete.length) bk.appendChild(knoten("div", "leer", "Noch keine Geräte erfasst."));
+
+  /* ---- EOL-kritische Geräte ---- */
+  const liste = el("db-eol");
+  liste.textContent = "";
+  const kritisch = geraete
+    .filter(g => eolZustand(g) !== "")
+    .sort((a, b) => a.endOfLife.localeCompare(b.endOfLife))
+    .slice(0, 12);
+
+  if (!kritisch.length) {
+    liste.appendChild(knoten("div", "leer",
+      "Kein Gerät läuft in den nächsten sechs Monaten aus."));
+  } else {
+    for (const g of kritisch) {
+      const eintrag = knoten("div", "eintrag");
+      eintrag.appendChild(knoten("div", "nam", g.name || "Ohne Namen"));
+      eintrag.appendChild(statusMarke(g.status));
+      const dat = knoten("div", "dat " + (eolZustand(g) === "vorbei" ? "ueber" : ""),
+        Hilfe.datumKurz(g.endOfLife));
+      eintrag.appendChild(dat);
+      eintrag.addEventListener("click", () => detailOeffnen(g));
+      liste.appendChild(eintrag);
+    }
+  }
+}
+
+
+/* ==================================================================== */
+/* Geräteliste                                                          */
+/* ==================================================================== */
+
+auswahlFuellen(el("ge-kategorie"), KATEGORIEN, "Alle Kategorien");
+auswahlFuellen(el("ge-status"), STATUS, "Alle Status");
+
+/* Sofortsuche über die Felder, die man beim Suchen tatsächlich zur Hand hat:
+   Name, Asset-Nr., Seriennummer, IP, MAC, Owner. */
+function passt(g, suchtext) {
+  if (!suchtext) return true;
+  const heuhaufen = [
+    g.name, g.assetNr, g.seriennummer, g.ipAdresse, g.macAdresse, g.owner
+  ].join(" ").toLowerCase();
+  // Mehrere Wörter: alle müssen vorkommen.
+  return suchtext.toLowerCase().split(/\s+/).filter(Boolean)
+    .every(wort => heuhaufen.indexOf(wort) >= 0);
+}
+
+function gefiltert() {
+  const suchtext = el("ge-suche").value.trim();
+  const kategorie = el("ge-kategorie").value;
+  const status = el("ge-status").value;
+  return geraete.filter(g =>
+    (!kategorie || g.kategorie === kategorie) &&
+    (!status || g.status === status) &&
+    passt(g, suchtext));
+}
+
+function sortiert(liste) {
+  const richtung = sortierAb ? -1 : 1;
+  return liste.slice().sort((a, b) => {
+    const x = a[sortierFeld], y = b[sortierFeld];
+    // Leere Werte immer ans Ende, unabhängig von der Richtung.
+    if (!x && !y) return 0;
+    if (!x) return 1;
+    if (!y) return -1;
+    if (typeof x === "number" && typeof y === "number") return (x - y) * richtung;
+    return String(x).localeCompare(String(y), "de-CH", { numeric: true }) * richtung;
+  });
+}
+
+function tabelleZeichnen() {
+  const liste = sortiert(gefiltert());
+  const koerper = el("ge-koerper");
+  koerper.textContent = "";
+
+  for (const g of liste) {
+    const zeile = document.createElement("tr");
+
+    zeile.appendChild(knoten("td", "name", g.name || "Ohne Namen"));
+    zeile.appendChild(knoten("td", "mono", g.assetNr || "—"));
+    zeile.appendChild(knoten("td", "grau", g.kategorie || "—"));
+
+    const tdStatus = document.createElement("td");
+    tdStatus.appendChild(statusMarke(g.status));
+    zeile.appendChild(tdStatus);
+
+    zeile.appendChild(knoten("td", "grau", g.standort || "—"));
+    zeile.appendChild(knoten("td", "grau", g.owner || "—"));
+
+    const zustand = eolZustand(g);
+    const tdEol = knoten("td", zustand === "vorbei" ? "" : "grau",
+      g.endOfLife ? Hilfe.datumKurz(g.endOfLife) : "—");
+    if (zustand === "vorbei") tdEol.style.color = "var(--rot)";
+    zeile.appendChild(tdEol);
+
+    zeile.addEventListener("click", () => detailOeffnen(g));
+    koerper.appendChild(zeile);
+  }
+
+  const leer = el("ge-leer");
+  if (!liste.length) {
+    leer.textContent = geraete.length
+      ? "Kein Gerät passt zur Suche."
+      : "Noch keine Geräte erfasst. Mit «Neues Gerät» das erste anlegen.";
+    leer.hidden = false;
+  } else {
+    leer.hidden = true;
+  }
+
+  el("ge-anzahl").textContent = liste.length === geraete.length
+    ? geraete.length + (geraete.length === 1 ? " Gerät" : " Geräte")
+    : liste.length + " von " + geraete.length + " Geräten";
+
+  kopfzeilenMarkieren();
+}
+
+function kopfzeilenMarkieren() {
+  for (const th of document.querySelectorAll("thead th.sortierbar")) {
+    const eigen = th.dataset.feld === sortierFeld;
+    th.textContent = th.dataset.beschriftung || (th.dataset.beschriftung = th.textContent.trim());
+    if (eigen) {
+      const pfeil = knoten("span", "pfeil", sortierAb ? " ↓" : " ↑");
+      th.appendChild(pfeil);
+    }
+  }
+}
+
+for (const th of document.querySelectorAll("thead th.sortierbar")) {
+  th.addEventListener("click", function () {
+    const feld = th.dataset.feld;
+    if (sortierFeld === feld) sortierAb = !sortierAb;
+    else { sortierFeld = feld; sortierAb = false; }
+    tabelleZeichnen();
+  });
+}
+
+el("ge-suche").addEventListener("input", tabelleZeichnen);
+el("ge-kategorie").addEventListener("change", tabelleZeichnen);
+el("ge-status").addEventListener("change", tabelleZeichnen);
+
+
+/* ==================================================================== */
+/* Etiketten-Ansicht                                                    */
+/* ==================================================================== */
+
+function etikettenSichtbar() {
+  const suchtext = el("et-suche").value.trim();
+  return geraete.filter(g => passt(g, suchtext));
+}
+
+function etikettenZeichnen() {
+  const liste = el("et-liste");
+  liste.textContent = "";
+  const sichtbar = etikettenSichtbar();
+
+  for (const g of sichtbar) {
+    const label = document.createElement("label");
+
+    const haken = document.createElement("input");
+    haken.type = "checkbox";
+    haken.checked = etikettenWahl.has(String(g.id));
+    haken.addEventListener("change", function () {
+      if (haken.checked) etikettenWahl.add(String(g.id));
+      else etikettenWahl.delete(String(g.id));
+      etikettenZaehlerAktualisieren();
+    });
+
+    label.appendChild(haken);
+    label.appendChild(knoten("span", "nam", g.name || "Ohne Namen"));
+    label.appendChild(knoten("span", "neben",
+      (g.assetNr || "ohne Asset-Nr.") + " · " + (g.kategorie || "—")));
+    liste.appendChild(label);
+  }
+
+  if (!sichtbar.length) {
+    liste.appendChild(knoten("div", "leer", geraete.length
+      ? "Kein Gerät passt zur Suche."
+      : "Noch keine Geräte erfasst."));
+  }
+  etikettenZaehlerAktualisieren();
+}
+
+function etikettenZaehlerAktualisieren() {
+  el("et-anzahl").textContent = String(etikettenWahl.size);
+  el("btn-et-drucken").disabled = etikettenWahl.size === 0;
+}
+
+el("et-suche").addEventListener("input", etikettenZeichnen);
+
+el("btn-et-alle").addEventListener("click", function () {
+  for (const g of etikettenSichtbar()) etikettenWahl.add(String(g.id));
+  etikettenZeichnen();
+});
+
+el("btn-et-nichts").addEventListener("click", function () {
+  etikettenWahl.clear();
+  etikettenZeichnen();
+});
+
+el("btn-et-drucken").addEventListener("click", function () {
+  if (!etikettenWahl.size) return;
+  // Bewusst OHNE "noopener": das neue Fenster erbt sonst den sessionStorage
+  // nicht, und etikette.html müsste den ganzen Weg über Entra nochmals gehen.
+  // Gleicher Ursprung, eigene Seite — hier ist das unbedenklich.
+  window.open("etikette.html?ids=" + Array.from(etikettenWahl).join(","), "_blank");
+});
+
+
+/* ==================================================================== */
+/* Detail-Tafel                                                         */
+/* ==================================================================== */
+
+auswahlFuellen(el("f-kategorie"), KATEGORIEN, "— bitte wählen —");
+auswahlFuellen(el("f-status"), STATUS);
+
+function formLesen() {
+  const d = {};
+  for (const feld of FELDER) {
+    const eingabe = el("f-" + feld);
+    if (!eingabe) continue;
+    d[feld] = feld === "preis"
+      ? (eingabe.value === "" ? "" : Number(eingabe.value))
+      : eingabe.value.trim();
+  }
+  return d;
+}
+
+function formFuellen(g) {
+  for (const feld of FELDER) {
+    const eingabe = el("f-" + feld);
+    if (!eingabe) continue;
+    const wert = g ? g[feld] : "";
+    eingabe.value = (wert === null || wert === undefined) ? "" : String(wert);
+  }
+  if (!g) el("f-status").value = "Lager";  // Vorgabe wie in SharePoint
+}
+
+function detailOeffnen(g) {
+  aktuell = g || null;
+  fehlerZeigen("t-fehler", null);
+  formFuellen(g);
+
+  el("t-titel").textContent = g ? (g.name || "Ohne Namen") : "Neues Gerät";
+  el("t-qr").classList.remove("offen");
+
+  const bestehend = !!g;
+  el("btn-loeschen").hidden   = !bestehend;
+  el("btn-qr").hidden         = !bestehend;
+  el("btn-etikette").hidden   = !bestehend;
+  el("btn-oeffentlich").hidden = !bestehend;
+  el("t-verlauf-abschnitt").hidden = !bestehend;
+
+  if (!bestehend) el("btn-oeffentlich").removeAttribute("href");
+
+  if (bestehend) {
+    el("btn-oeffentlich").href = "geraet.html?id=" + encodeURIComponent(g.id);
+    el("t-verlauf").textContent = "";
+    el("t-verlauf").appendChild(knoten("div", "leer", "Verlauf wird geladen …"));
+    verlaufLaden(g.id);
+  }
+
+  standBeimOeffnen = JSON.stringify(formLesen());
+
+  el("tafel-hintergrund").hidden = false;
+  document.body.style.overflow = "hidden";
+  setTimeout(() => el("f-name").focus(), 30);
+}
+
+/* Ist seit dem Öffnen etwas im Formular geändert worden? Verglichen wird der
+   gelesene Formularstand, nicht das Gerät — damit zählt auch das Zurücksetzen
+   auf den Ursprungswert korrekt als «nicht geändert». */
+function ungespeicherteAenderungen() {
+  if (el("tafel-hintergrund").hidden) return false;
+  return JSON.stringify(formLesen()) !== standBeimOeffnen;
+}
+
+/* Wird von Escape, vom Klick neben die Tafel und von «Schliessen» benutzt.
+   Der Speichern-Weg ruft detailSchliessen() direkt auf und fragt nicht. */
+function detailSchliessenMitRueckfrage() {
+  if (ungespeicherteAenderungen()
+      && !window.confirm("Es gibt ungespeicherte Änderungen.\n\n"
+        + "Sollen sie verworfen werden?")) return;
+  detailSchliessen();
+}
+
+function detailSchliessen() {
+  el("tafel-hintergrund").hidden = true;
+  document.body.style.overflow = "";
+  aktuell = null;
+  standBeimOeffnen = null;
+}
+
+el("btn-schliessen").addEventListener("click", detailSchliessenMitRueckfrage);
+el("btn-abbrechen").addEventListener("click", detailSchliessenMitRueckfrage);
+el("tafel-hintergrund").addEventListener("mousedown", function (e) {
+  if (e.target === el("tafel-hintergrund")) detailSchliessenMitRueckfrage();
+});
+document.addEventListener("keydown", function (e) {
+  if (e.key === "Escape" && !el("tafel-hintergrund").hidden) detailSchliessenMitRueckfrage();
+});
+
+/* Auch beim Schliessen des Tabs oder beim Neuladen warnen. */
+window.addEventListener("beforeunload", function (e) {
+  if (!ungespeicherteAenderungen()) return;
+  e.preventDefault();
+  e.returnValue = "";
+});
+
+el("btn-neu").addEventListener("click", () => detailOeffnen(null));
+
+
+/* ---------- Speichern ---------- */
+
+/* Vergleicht alt und neu und liefert einen lesbaren Satz für den Verlauf.
+   Lange Textfelder werden nur als «geändert» vermerkt, sonst wird der
+   Verlaufseintrag unlesbar. */
+function unterschiede(alt, neu) {
+  const teile = [];
+  for (const feld of FELDER) {
+    const a = alt[feld] === null || alt[feld] === undefined ? "" : String(alt[feld]);
+    const b = neu[feld] === null || neu[feld] === undefined ? "" : String(neu[feld]);
+    if (a === b) continue;
+    const bez = FELD_BEZEICHNUNG[feld];
+    if (feld === "notizenIntern" || feld === "beschreibungOeffentlich") {
+      teile.push(bez + " geändert");
+    } else {
+      teile.push(bez + ": «" + (a || "leer") + "» → «" + (b || "leer") + "»");
+    }
+  }
+  return teile;
+}
+
+el("btn-speichern").addEventListener("click", async function () {
+  const knopf = el("btn-speichern");
+  const daten = formLesen();
+  fehlerZeigen("t-fehler", null);
+
+  if (!daten.name) { fehlerZeigen("t-fehler", new Error("Bitte einen Gerätenamen eingeben.")); el("f-name").focus(); return; }
+  if (!daten.kategorie) { fehlerZeigen("t-fehler", new Error("Bitte eine Kategorie wählen.")); el("f-kategorie").focus(); return; }
+  if (!daten.status) { fehlerZeigen("t-fehler", new Error("Bitte einen Status wählen.")); el("f-status").focus(); return; }
+
+  const beschriftung = knopf.textContent;
+  knopf.disabled = true;
+  knopf.textContent = "Wird gespeichert …";
+
+  try {
+    if (aktuell) {
+      const geaendert = unterschiede(aktuell, daten);
+      if (!geaendert.length) {
+        detailSchliessen();
+        return;
+      }
+      await Graph.geraetAendern(aktuell.id, daten);
+      await Graph.verlaufVersuchen({
+        aktion: "Geändert",
+        geraetId: aktuell.id,
+        text: geaendert.join("\n")
+      });
+    } else {
+      const neueId = await Graph.geraetAnlegen(daten);
+      await Graph.verlaufVersuchen({
+        aktion: "Erstellt",
+        geraetId: neueId,
+        text: "Gerät angelegt: " + daten.name
+          + (daten.assetNr ? " (Asset-Nr. " + daten.assetNr + ")" : "")
+      });
+    }
+    detailSchliessen();
+    await ladenGeraete();
+  } catch (e) {
+    fehlerZeigen("t-fehler", e);
+  } finally {
+    knopf.disabled = false;
+    knopf.textContent = beschriftung;
+  }
+});
+
+
+/* ---------- Löschen ---------- */
+
+el("btn-loeschen").addEventListener("click", async function () {
+  if (!aktuell) return;
+  const name = aktuell.name || "dieses Gerät";
+  if (!window.confirm("Soll «" + name + "» wirklich gelöscht werden?\n\n"
+      + "Der Eintrag verschwindet aus der Liste Geraete. Der Verlauf bleibt "
+      + "als Chronik bestehen. Rückgängig machen lässt sich das nur über den "
+      + "Papierkorb von SharePoint.")) return;
+
+  const knopf = el("btn-loeschen");
+  knopf.disabled = true;
+  const beschriftung = knopf.textContent;
+  knopf.textContent = "Wird gelöscht …";
+  fehlerZeigen("t-fehler", null);
+
+  try {
+    const id = aktuell.id;
+    await Graph.geraetLoeschen(id);
+    await Graph.verlaufVersuchen({
+      aktion: "Gelöscht",
+      geraetId: id,
+      text: "Gerät gelöscht: " + name
+        + (aktuell.assetNr ? " (Asset-Nr. " + aktuell.assetNr + ")" : "")
+    });
+    etikettenWahl.delete(String(id));
+    detailSchliessen();
+    await ladenGeraete();
+  } catch (e) {
+    fehlerZeigen("t-fehler", e);
+  } finally {
+    knopf.disabled = false;
+    knopf.textContent = beschriftung;
+  }
+});
+
+
+/* ---------- QR-Code, Etikette, öffentliche Seite ---------- */
+
+el("btn-qr").addEventListener("click", function () {
+  if (!aktuell) return;
+  const kasten = el("t-qr");
+  if (kasten.classList.contains("offen")) { kasten.classList.remove("offen"); return; }
+
+  const adresse = Hilfe.geraetLink(aktuell.id);
+  try {
+    const qr = qrcode(0, "M");
+    qr.addData(adresse);
+    qr.make();
+    // Das SVG stammt vom QR-Erzeuger und enthält nur Rechtecke.
+    el("t-qr-bild").innerHTML = qr.createSvgTag({ cellSize: 4, margin: 1, scalable: true });
+  } catch (e) {
+    el("t-qr-bild").textContent = "QR-Code konnte nicht erzeugt werden.";
+  }
+  el("t-qr-adresse").textContent = adresse;
+  kasten.classList.add("offen");
+});
+
+el("btn-etikette").addEventListener("click", function () {
+  if (!aktuell) return;
+  // Ohne "noopener", siehe Kommentar bei der Etiketten-Ansicht.
+  window.open("etikette.html?ids=" + encodeURIComponent(aktuell.id), "_blank");
+});
+
+
+/* ---------- Verlauf ---------- */
+
+async function verlaufLaden(geraetId) {
+  const kasten = el("t-verlauf");
+  try {
+    const eintraege = await Graph.verlauf(geraetId);
+    verlaufZeichnen(eintraege);
+  } catch (e) {
+    kasten.textContent = "";
+    kasten.appendChild(knoten("div", "leer",
+      "Verlauf konnte nicht geladen werden: " + ((e && e.message) || e)));
+  }
+}
+
+function verlaufZeichnen(eintraege) {
+  const kasten = el("t-verlauf");
+  kasten.textContent = "";
+
+  if (!eintraege.length) {
+    kasten.appendChild(knoten("div", "leer", "Noch keine Verlaufseinträge."));
+    return;
+  }
+  for (const v of eintraege) {
+    const k = knoten("div", "v");
+    const kopfzeile = knoten("div", "kopfzeile");
+    kopfzeile.appendChild(knoten("span", "aktion", v.aktion || "Eintrag"));
+    kopfzeile.appendChild(knoten("span", "wann", Hilfe.zeitpunktText(v.datum)));
+    if (v.wer) kopfzeile.appendChild(knoten("span", "wer", v.wer));
+    k.appendChild(kopfzeile);
+    if (v.text) k.appendChild(knoten("div", "txt", v.text));
+    kasten.appendChild(k);
+  }
+}
+
+el("btn-v-anlegen").addEventListener("click", async function () {
+  if (!aktuell) return;
+  const aktion = el("v-aktion").value.trim();
+  const text = el("v-text").value.trim();
+  if (!aktion && !text) {
+    fehlerZeigen("t-fehler", new Error("Bitte eine Aktion oder eine Notiz eingeben."));
+    return;
+  }
+  const knopf = el("btn-v-anlegen");
+  knopf.disabled = true;
+  fehlerZeigen("t-fehler", null);
+  try {
+    await Graph.verlaufAnlegen({
+      aktion: aktion || "Notiz",
+      geraetId: aktuell.id,
+      text: text
+    });
+    el("v-aktion").value = "";
+    el("v-text").value = "";
+    await verlaufLaden(aktuell.id);
+  } catch (e) {
+    fehlerZeigen("t-fehler", e);
+  } finally {
+    knopf.disabled = false;
+  }
+});
+
+
+/* ==================================================================== */
+/* Start                                                                */
+/* ==================================================================== */
+
+el("btn-abmelden").addEventListener("click", () => Auth.abmelden());
+
+async function starten() {
+  let konto;
+  try {
+    konto = await Auth.anmeldungSicherstellen();
+  } catch (e) {
+    fehlerZeigen("global-fehler", e);
+    return;
+  }
+  el("konto-name").textContent = konto ? (konto.name || konto.adresse || "") : "";
+  el("konto-adresse").textContent = konto ? (konto.adresse || "") : "";
+
+  const gewuenscht = (location.hash || "").replace("#", "");
+  ansichtZeigen(["dashboard", "geraete", "etiketten"].indexOf(gewuenscht) >= 0
+    ? gewuenscht : "dashboard");
+
+  await ladenGeraete();
+}
+
+starten();
+</script>
+</body>
+</html>

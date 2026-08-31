@@ -1,0 +1,21 @@
+# netlify.toml — Einstellungen für Netlify.
+#
+# Die Anwendung ist eine rein statische Website: es gibt nichts zu bauen.
+# Netlify soll einfach den Ordner «frontend» so ausliefern, wie er ist.
+#
+# Diese Datei wird nur bei einem Deploy aus Git gebraucht. Beim manuellen
+# Deploy per Drag & Drop zieht man den Ordner «frontend» direkt in Netlify;
+# dann ist er selbst die Wurzel und diese Datei spielt keine Rolle.
+
+[build]
+  # Ausgeliefert wird ausschliesslich dieser Ordner. Alles andere im Repo
+  # (anleitung/, code/, README.md) bleibt bewusst draussen — die Dokumentation
+  # gehört nicht ins öffentliche Web.
+  publish = "frontend"
+
+  # Kein Build-Befehl: kein Bundler, kein Framework, keine Abhängigkeiten.
+  command = ""
+
+# Die Kopfzeilen stehen in frontend/_headers, die Umleitungen in
+# frontend/_redirects. Sie sind bewusst dort und nicht hier, damit sie beim
+# manuellen Drag-&-Drop-Deploy automatisch mitkommen.
