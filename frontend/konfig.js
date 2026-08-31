@@ -3,7 +3,7 @@
    Diese Datei enthält KEINE Geheimnisse. Mandanten- und Client-ID sind bei
    Single-Page-Anwendungen öffentlich sichtbar; der Schutz kommt aus der
    Anmeldung an Entra ID und aus der Benutzerzuweisung in der
-   Unternehmensanwendung. Siehe docs/01_Einrichtung.md.
+   Unternehmensanwendung. Siehe anleitung/01_Einrichtung.md.
 
    Die Datei wird von admin.html, etikette.html und setup.html geladen.
    geraet.html (öffentlich) braucht daraus nur FLOW_GERAET_URL. */
@@ -17,7 +17,7 @@ const KONFIG = {
 
   // Anwendungs-ID (Client-ID) der App-Registrierung «ICT Lager Verwaltung».
   // MUSS EINGETRAGEN WERDEN: neue SPA-App-Registrierung anlegen,
-  // siehe docs/01_Einrichtung.md, Schritt A.
+  // siehe anleitung/01_Einrichtung.md, Schritt A.
   clientId: "HIER_CLIENT_ID_EINTRAGEN",
 
 
@@ -42,7 +42,7 @@ const KONFIG = {
      ausschliesslich die öffentlichen Felder. Wird von geraet.html ohne
      Anmeldung aufgerufen (GET, Query-Parameter &id=...).
      MUSS EINGETRAGEN WERDEN: URL aus dem Flow kopieren,
-     siehe docs/01_Einrichtung.md, Schritt C. */
+     siehe anleitung/01_Einrichtung.md, Schritt C. */
   FLOW_GERAET_URL: "HIER_FLOW_URL_EINTRAGEN",
 
 

@@ -58,7 +58,7 @@ const Auth = (function () {
       }
       if (!KONFIG.clientId || KONFIG.clientId.indexOf("HIER_") === 0) {
         throw new Error("In konfig.js ist keine Client-ID eingetragen. "
-          + "Bitte die App-Registrierung anlegen, siehe docs/01_Einrichtung.md.");
+          + "Bitte die App-Registrierung anlegen, siehe anleitung/01_Einrichtung.md.");
       }
       const app = new msal.PublicClientApplication({
         auth: {

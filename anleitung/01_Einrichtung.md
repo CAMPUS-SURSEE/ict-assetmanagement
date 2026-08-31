@@ -551,10 +551,9 @@ const KONFIG = {
   sitePfad:  "campussursee.sharepoint.com:/sites/mgmts-ict-s",  // steht bereits
   listeGeraete: "…",                                    // aus Schritt B
   listeVerlauf: "…",                                    // aus Schritt B
-  FLOW_GERAET_URL: "https://…powerplatform.com/…&sig=…", // aus Schritt C.5
+  FLOW_GERAET_URL: "https://…powerplatform.com/…&sig=…", // aus Schritt C.7
   BASIS_URL: "https://ictlager.campus-sursee.ch",       // steht bereits
-  servicedeskMail: "servicedesk@campus-sursee.ch",
-  servicedeskTelefon: "+41 41 926 23 69"
+  servicedeskMail: "servicedesk@campus-sursee.ch"       // steht bereits
 };
 ```
 
