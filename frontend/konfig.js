@@ -1,4 +1,4 @@
-/* konfig.js — zentrale Einstellungen für das ICT-Lager Campus Sursee.
+/* konfig.js, zentrale Einstellungen für das ICT-Lager Campus Sursee.
 
    Diese Datei enthält KEINE Geheimnisse. Mandanten- und Client-ID sind bei
    Single-Page-Anwendungen öffentlich sichtbar; der Schutz kommt aus der
@@ -12,7 +12,7 @@ const KONFIG = {
 
   /* ---- Entra ID (Microsoft 365) ---------------------------------------- */
 
-  // Mandant (Directory/Tenant) Campus Sursee — fix, nicht ändern.
+  // Mandant (Directory/Tenant) Campus Sursee (fix, nicht ändern).
   mandantId: "2553fb74-5dcc-4072-8bb5-399d18f72af9",
 
   // Anwendungs-ID (Client-ID) der App-Registrierung «ICT Lager Verwaltung».
@@ -29,7 +29,7 @@ const KONFIG = {
   sitePfad: "campussursee.sharepoint.com:/sites/mgmts-ict-s",
 
   /* Listen. Erlaubt ist entweder der Anzeigename («Geraete») oder die
-     Listen-GUID. Die GUID ist stabiler — sie ändert sich nicht, wenn jemand
+     Listen-GUID. Die GUID ist stabiler: sie ändert sich nicht, wenn jemand
      die Liste in SharePoint umbenennt. Beide Listen wurden am 31.08.2026
      angelegt; hier stehen ihre GUIDs. */
   listeGeraete: "9fb53d45-26c9-4d72-9297-696231048d69",   // Liste «Geraete»

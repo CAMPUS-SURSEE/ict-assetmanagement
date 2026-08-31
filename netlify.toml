@@ -1,4 +1,4 @@
-# netlify.toml — Einstellungen für Netlify.
+# netlify.toml, Einstellungen für Netlify.
 #
 # Die Anwendung ist eine rein statische Website: es gibt nichts zu bauen.
 # Netlify soll einfach den Ordner «frontend» so ausliefern, wie er ist.
@@ -9,7 +9,7 @@
 
 [build]
   # Ausgeliefert wird ausschliesslich dieser Ordner. Alles andere im Repo
-  # (anleitung/, code/, README.md) bleibt bewusst draussen — die Dokumentation
+  # (anleitung/, code/, README.md) bleibt bewusst draussen, die Dokumentation
   # gehört nicht ins öffentliche Web.
   publish = "frontend"
 

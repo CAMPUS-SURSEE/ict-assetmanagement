@@ -4,529 +4,568 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <meta name="robots" content="noindex">
-<title>ICT Lager — Verwaltung</title>
+<title>Verwaltung · ICT Lager</title>
+<link rel="icon" type="image/webp"
+      href="https://www.campus-sursee.ch/wp-content/uploads/2023/12/campus-sursee-favicon.webp">
 <style>
+  /* Gestaltung: reines Weiss, Struktur ausschliesslich ueber Haarlinien,
+     Abstaende und Typografie. Keine Flaechen, keine Schatten, keine
+     Grautoene als Hintergrund. Farbe kommt nur vom Akzent. */
   :root {
-    --akzent:       #84B819;
-    --akzent-dkl:   #6f9c14;
-    --dunkel:       #1a1a1a;
-    --dunkel-2:     #232323;
-    --dunkel-linie: #333333;
-    --dunkel-text:  #e8eae4;
-    --dunkel-grau:  #8d8f89;
-    --text:         #111111;
-    --grau:         #6b6d68;
-    --grau-hell:    #9a9c97;
-    --grund:        #f5f6f4;
-    --karte:        #ffffff;
-    --linie:        #e4e5e1;
-    --linie-stark:  #d3d5ce;
-    --rot:          #a13b1e;
-    --radius:       10px;
+    --akzent:     #84B819;
+    --akzent-dkl: #6d9a12;
+    --text:       #101208;
+    --text-2:     #5f6359;
+    --text-3:     #8d9187;
+    --linie:      #e7e8e3;
+    --linie-2:    #d2d4cc;
+    --tint:       rgba(132, 184, 25, 0.07);
+    --rot:        #b03a22;
+    --radius:     10px;
   }
   * { box-sizing: border-box; margin: 0; padding: 0; }
   /* hidden muss staerker sein als jede display-Regel weiter unten,
      sonst bleiben ausgeblendete Knoepfe und Pillen sichtbar. */
   [hidden] { display: none !important; }
-  html { -webkit-text-size-adjust: 100%; }
+  html { -webkit-text-size-adjust: 100%; background: #fff; }
   body {
-    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
-    background: var(--grund);
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI Variable Text",
+                 "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+    background: #fff;
     color: var(--text);
-    line-height: 1.5;
+    line-height: 1.55;
     font-size: 15px;
+    -webkit-font-smoothing: antialiased;
+  }
+  ::selection { background: rgba(132, 184, 25, 0.22); }
+  button:focus-visible, a:focus-visible, [type="checkbox"]:focus-visible {
+    outline: 2px solid var(--akzent);
+    outline-offset: 2px;
+    border-radius: 4px;
   }
 
-  /* ================= Gerüst ================= */
+  /* ================= Kopfzeile ================= */
 
-  .app { display: flex; min-height: 100vh; }
-
-  /* ---------- Seitenleiste ---------- */
-
-  .seite {
-    flex: none;
-    width: 232px;
-    background: var(--dunkel);
-    color: var(--dunkel-text);
-    display: flex;
-    flex-direction: column;
-    padding: 22px 16px 16px;
+  .kopf {
     position: sticky;
     top: 0;
-    height: 100vh;
+    z-index: 10;
+    background: #fff;
+    border-bottom: 1px solid var(--linie);
   }
-  .seite .logo { width: 132px; height: auto; display: block; color: #fff; margin: 0 6px; }
-  .seite .produkt {
-    margin: 16px 6px 26px;
-    font-size: 0.68rem;
-    letter-spacing: 0.2em;
-    text-transform: uppercase;
-    color: var(--dunkel-grau);
+  .bahn { max-width: 1200px; margin: 0 auto; padding: 0 28px; }
+
+  .kopf-oben { display: flex; align-items: center; gap: 14px; padding: 18px 0 16px; }
+  .marke { display: block; flex: none; }
+  .logo { width: 124px; height: auto; display: block; }
+  .strich { flex: none; width: 1px; height: 20px; background: var(--linie); }
+  .produkt { font-size: 0.9rem; font-weight: 600; letter-spacing: -0.01em; white-space: nowrap; }
+
+  .konto { margin-left: auto; display: flex; align-items: center; gap: 14px; min-width: 0; }
+  .konto-text { text-align: right; min-width: 0; line-height: 1.35; }
+  .konto .name {
+    font-size: 0.83rem; font-weight: 500;
+    overflow: hidden; text-overflow: ellipsis; white-space: nowrap;
   }
-  .seite nav { display: grid; gap: 2px; }
-  .seite nav button {
+  .konto .adresse {
+    font-size: 0.75rem; color: var(--text-3);
+    overflow: hidden; text-overflow: ellipsis; white-space: nowrap;
+  }
+
+  .reiter { display: flex; gap: 28px; overflow-x: auto; scrollbar-width: none; }
+  .reiter::-webkit-scrollbar { display: none; }
+  .reiter button {
+    position: relative;
+    flex: none;
     font: inherit;
-    font-size: 0.92rem;
-    text-align: left;
-    display: flex;
-    align-items: center;
-    gap: 11px;
-    padding: 10px 12px;
+    font-size: 0.9rem;
+    font-weight: 500;
+    padding: 0 0 13px;
     border: 0;
-    border-radius: 8px;
-    background: transparent;
-    color: var(--dunkel-grau);
+    background: none;
+    color: var(--text-2);
     cursor: pointer;
   }
-  .seite nav button svg { width: 17px; height: 17px; flex: none; stroke: currentColor; fill: none; stroke-width: 1.6; }
-  .seite nav button:hover { background: var(--dunkel-2); color: var(--dunkel-text); }
-  .seite nav button[aria-current="page"] { background: var(--dunkel-2); color: #fff; font-weight: 500; }
-  .seite nav button[aria-current="page"] svg { color: var(--akzent); }
-
-  .seite .fuss { margin-top: auto; padding-top: 18px; border-top: 1px solid var(--dunkel-linie); }
-  .seite .fuss .name {
-    font-size: 0.84rem;
-    padding: 0 6px;
-    overflow: hidden;
-    text-overflow: ellipsis;
-    white-space: nowrap;
-  }
-  .seite .fuss .adresse {
-    font-size: 0.74rem;
-    color: var(--dunkel-grau);
-    padding: 0 6px 10px;
-    overflow: hidden;
-    text-overflow: ellipsis;
-    white-space: nowrap;
-  }
-  .seite .fuss button {
-    font: inherit;
-    font-size: 0.82rem;
-    padding: 7px 12px;
-    width: 100%;
-    text-align: left;
-    border: 1px solid var(--dunkel-linie);
-    border-radius: 8px;
+  .reiter button::after {
+    content: "";
+    position: absolute; left: 0; right: 0; bottom: -1px;
+    height: 2px;
     background: transparent;
-    color: var(--dunkel-grau);
-    cursor: pointer;
   }
-  .seite .fuss button:hover { color: #fff; border-color: #4a4a4a; }
+  .reiter button:hover { color: var(--text); }
+  .reiter button[aria-current="page"] { color: var(--text); font-weight: 600; }
+  .reiter button[aria-current="page"]::after { background: var(--akzent); }
 
-  /* ---------- Inhalt ---------- */
+  /* ================= Inhalt ================= */
 
-  .inhalt { flex: 1; min-width: 0; padding: 30px 34px 60px; }
-  .kopf { display: flex; align-items: flex-end; gap: 16px; flex-wrap: wrap; margin-bottom: 22px; }
-  .kopf h1 { font-size: 1.35rem; font-weight: 600; letter-spacing: -0.01em; }
-  .kopf .unter { font-size: 0.88rem; color: var(--grau); }
-  .kopf .rechts { margin-left: auto; display: flex; gap: 10px; flex-wrap: wrap; }
-
+  .inhalt { max-width: 1200px; margin: 0 auto; padding: 36px 28px 90px; }
   .ansicht[hidden] { display: none; }
+
+  .seitenkopf { display: flex; align-items: flex-end; gap: 16px; flex-wrap: wrap; margin-bottom: 26px; }
+  .seitenkopf h1 { font-size: 1.5rem; font-weight: 600; letter-spacing: -0.025em; line-height: 1.2; }
+  .seitenkopf .unter { margin-top: 5px; font-size: 0.87rem; color: var(--text-2); }
+  .seitenkopf .aktionen { margin-left: auto; display: flex; gap: 8px; flex-wrap: wrap; }
 
   /* ---------- Bausteine ---------- */
 
-  .karte {
-    background: var(--karte);
+  .tafelchen {
     border: 1px solid var(--linie);
     border-radius: var(--radius);
-    padding: 20px;
+    padding: 20px 22px 22px;
   }
-  .karte h2 {
-    font-size: 0.7rem;
-    font-weight: 600;
-    letter-spacing: 0.14em;
-    text-transform: uppercase;
-    color: var(--grau);
-    margin-bottom: 14px;
-  }
+  .tafelchen > h2 { font-size: 0.88rem; font-weight: 600; letter-spacing: -0.01em; margin-bottom: 18px; }
 
   button.knopf, a.knopf {
     font: inherit;
-    font-size: 0.88rem;
+    font-size: 0.86rem;
     font-weight: 500;
-    padding: 9px 16px;
+    padding: 9px 15px;
     border-radius: 8px;
-    border: 1px solid var(--linie-stark);
+    border: 1px solid var(--linie-2);
     background: #fff;
     color: var(--text);
     cursor: pointer;
     text-decoration: none;
-    display: inline-block;
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
     white-space: nowrap;
+    transition: border-color 0.15s ease, background 0.15s ease;
   }
-  button.knopf:hover, a.knopf:hover { border-color: #b9bcb2; }
+  button.knopf:hover, a.knopf:hover { border-color: #b7bab0; background: var(--tint); }
   button.knopf.haupt, a.knopf.haupt {
     background: var(--akzent); border-color: var(--akzent); color: #17210a; font-weight: 600;
   }
   button.knopf.haupt:hover, a.knopf.haupt:hover { background: var(--akzent-dkl); border-color: var(--akzent-dkl); }
-  button.knopf.gefahr { color: var(--rot); border-color: #e6cdc5; }
-  button.knopf.gefahr:hover { background: #fdf3f0; border-color: #d9b0a4; }
-  button.knopf:disabled, a.knopf[aria-disabled="true"] { opacity: 0.45; cursor: default; }
+  button.knopf.gefahr { color: var(--rot); border-color: #e3ccc4; }
+  button.knopf.gefahr:hover { background: rgba(176, 58, 34, 0.05); border-color: #d3aa9c; }
+  button.knopf.klein { padding: 7px 12px; font-size: 0.8rem; }
+  button.knopf:disabled, a.knopf[aria-disabled="true"] { opacity: 0.4; cursor: default; }
+  button.knopf:disabled:hover { border-color: var(--linie-2); background: #fff; }
 
   input[type="text"], input[type="search"], input[type="date"], input[type="number"],
   select, textarea {
     font: inherit;
-    font-size: 0.9rem;
+    font-size: 0.88rem;
     width: 100%;
-    padding: 9px 11px;
-    border: 1px solid var(--linie-stark);
+    padding: 9px 12px;
+    border: 1px solid var(--linie-2);
     border-radius: 8px;
     background: #fff;
     color: var(--text);
+    transition: border-color 0.15s ease, box-shadow 0.15s ease;
   }
   input:focus, select:focus, textarea:focus {
-    outline: 2px solid rgba(132, 184, 25, 0.45);
-    outline-offset: -1px;
+    outline: none;
     border-color: var(--akzent);
+    box-shadow: 0 0 0 3px rgba(132, 184, 25, 0.16);
   }
-  textarea { resize: vertical; min-height: 76px; line-height: 1.5; }
+  input::placeholder { color: var(--text-3); }
+  textarea { resize: vertical; min-height: 78px; line-height: 1.55; }
+  select {
+    appearance: none;
+    -webkit-appearance: none;
+    padding-right: 34px;
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%238d9187' stroke-width='1.8' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='m6 9 6 6 6-6'/%3E%3C/svg%3E");
+    background-repeat: no-repeat;
+    background-position: right 11px center;
+    background-size: 15px;
+  }
   label.feld { display: block; }
   label.feld > span {
     display: block;
     font-size: 0.76rem;
     font-weight: 500;
-    color: var(--grau);
-    margin-bottom: 5px;
+    color: var(--text-2);
+    margin-bottom: 6px;
   }
 
+  /* Status: ein farbiger Punkt und der Text. Keine Flaeche, keine Pille. */
   .marke {
-    display: inline-block;
-    padding: 2px 9px;
-    border-radius: 999px;
-    font-size: 0.75rem;
-    font-weight: 500;
-    border: 1px solid var(--linie);
-    background: #fafbf9;
-    color: var(--grau);
+    display: inline-flex;
+    align-items: center;
+    gap: 7px;
+    font-size: 0.85rem;
     white-space: nowrap;
   }
-  .marke.s-Aktiv        { background: #f2f8e4; border-color: #d9e9b4; color: #4a6a08; }
-  .marke.s-Lager        { background: #f1f2ef; border-color: #dfe1db; color: #4a4c47; }
-  .marke.s-Reparatur    { background: #fdf3e6; border-color: #f0dcc0; color: #7a5210; }
-  .marke.s-Ausgemustert { background: #f5f5f5; border-color: #e6e6e6; color: #8b8b8b; }
+  .marke::before {
+    content: "";
+    flex: none;
+    width: 6px; height: 6px;
+    border-radius: 50%;
+    background: var(--text-3);
+  }
+  .marke.s-Aktiv::before        { background: var(--akzent); }
+  .marke.s-Lager::before        { background: #8a8f85; }
+  .marke.s-Reparatur::before    { background: #d98324; }
+  .marke.s-Ausgemustert::before { background: #c6c9c1; }
+  .marke.s-Ausgemustert         { color: var(--text-3); }
 
-  .meldung { padding: 14px 16px; border-radius: var(--radius); font-size: 0.9rem; margin-bottom: 16px; }
-  .meldung.fehler { background: #fdf1ed; border: 1px solid #eed6cd; color: var(--rot); }
-  .meldung.info   { background: #fff; border: 1px solid var(--linie); color: var(--grau); }
+  .meldung {
+    padding: 13px 16px;
+    border: 1px solid var(--linie);
+    border-radius: var(--radius);
+    font-size: 0.88rem;
+    color: var(--text-2);
+    margin-bottom: 18px;
+  }
+  .meldung.fehler { border-color: #e3ccc4; color: var(--rot); }
   .meldung[hidden] { display: none; }
 
-  .leer { padding: 46px 20px; text-align: center; color: var(--grau); font-size: 0.92rem; }
+  .leer { padding: 46px 20px; text-align: center; color: var(--text-3); font-size: 0.9rem; }
 
   /* ---------- Dashboard ---------- */
 
   .kennzahlen {
     display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
-    gap: 12px;
-    margin-bottom: 16px;
+    grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+    gap: 1px;
+    background: var(--linie);
+    border: 1px solid var(--linie);
+    border-radius: var(--radius);
+    overflow: hidden;
+    margin-bottom: 24px;
   }
-  .kennzahl { background: var(--karte); border: 1px solid var(--linie); border-radius: var(--radius); padding: 16px 18px; }
-  .kennzahl .wert { font-size: 1.9rem; font-weight: 600; letter-spacing: -0.02em; line-height: 1.15; }
-  .kennzahl .bez { font-size: 0.78rem; color: var(--grau); margin-top: 3px; }
+  .kennzahl { background: #fff; padding: 18px 20px 20px; }
+  .kennzahl .wert {
+    font-size: 1.7rem;
+    font-weight: 600;
+    letter-spacing: -0.035em;
+    line-height: 1.1;
+    font-variant-numeric: tabular-nums;
+  }
+  .kennzahl .bez { margin-top: 5px; font-size: 0.78rem; color: var(--text-2); }
   .kennzahl.betont .wert { color: var(--rot); }
-  .kennzahl.gut .wert { color: #5d8410; }
+  .kennzahl.gut .wert { color: #5e8a0f; }
 
-  .spalten2 { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); gap: 16px; align-items: start; }
+  .spalten2 { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); gap: 18px; align-items: start; }
   @media (max-width: 980px) { .spalten2 { grid-template-columns: minmax(0, 1fr); } }
 
-  .balken { display: grid; gap: 10px; }
-  .balken .reihe { display: grid; grid-template-columns: 96px 1fr 34px; gap: 12px; align-items: center; font-size: 0.86rem; }
-  .balken .bez { color: var(--grau); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
-  .balken .spur { height: 8px; background: #eef0eb; border-radius: 999px; overflow: hidden; }
+  .balken { display: grid; gap: 13px; }
+  .balken .reihe { display: grid; grid-template-columns: 92px 1fr 30px; gap: 14px; align-items: center; font-size: 0.85rem; }
+  .balken .bez { color: var(--text-2); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+  .balken .spur { height: 6px; background: rgba(132, 184, 25, 0.15); border-radius: 999px; overflow: hidden; }
   .balken .fuellung { height: 100%; background: var(--akzent); border-radius: 999px; }
-  .balken .zahl { text-align: right; font-variant-numeric: tabular-nums; color: var(--text); }
+  .balken .zahl { text-align: right; font-variant-numeric: tabular-nums; }
 
-  .eol-liste { display: grid; gap: 0; }
   .eol-liste .eintrag {
     display: flex; align-items: center; gap: 12px;
-    padding: 10px 0; border-bottom: 1px solid var(--linie);
-    font-size: 0.88rem; cursor: pointer;
+    padding: 11px 0; border-bottom: 1px solid var(--linie);
+    font-size: 0.87rem; cursor: pointer;
   }
-  .eol-liste .eintrag:last-child { border-bottom: 0; }
-  .eol-liste .eintrag:hover .nam { text-decoration: underline; }
+  .eol-liste .eintrag:last-child { border-bottom: 0; padding-bottom: 0; }
+  .eol-liste .eintrag:hover .nam { text-decoration: underline; text-decoration-color: var(--linie-2); }
   .eol-liste .nam { flex: 1; min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
-  .eol-liste .dat { flex: none; font-variant-numeric: tabular-nums; color: var(--grau); }
+  .eol-liste .dat { flex: none; font-variant-numeric: tabular-nums; color: var(--text-2); }
   .eol-liste .dat.ueber { color: var(--rot); font-weight: 500; }
 
-  /* ---------- Geräteliste ---------- */
+  /* ---------- Werkzeugleiste ---------- */
 
-  .werkzeuge { display: flex; gap: 10px; flex-wrap: wrap; margin-bottom: 14px; }
-  .werkzeuge .suche { flex: 1; min-width: 220px; }
-  .werkzeuge select { width: auto; min-width: 140px; }
+  .werkzeuge { display: flex; gap: 8px; flex-wrap: wrap; margin-bottom: 16px; }
+  .werkzeuge select { width: auto; min-width: 152px; }
+  .suchfeld { position: relative; flex: 1; min-width: 220px; }
+  .suchfeld svg {
+    position: absolute; left: 13px; top: 50%; transform: translateY(-50%);
+    width: 16px; height: 16px;
+    stroke: var(--text-3); fill: none; stroke-width: 1.7;
+    stroke-linecap: round; stroke-linejoin: round;
+    pointer-events: none;
+  }
+  .suchfeld input { padding-left: 38px; }
+
+  /* ---------- Geraeteliste ---------- */
 
   .tabellenkasten {
-    background: var(--karte);
     border: 1px solid var(--linie);
     border-radius: var(--radius);
     overflow-x: auto;
   }
-  table { width: 100%; border-collapse: collapse; font-size: 0.88rem; }
+  table { width: 100%; border-collapse: collapse; font-size: 0.87rem; }
   thead th {
     text-align: left;
     font-size: 0.72rem;
     font-weight: 600;
-    letter-spacing: 0.08em;
+    letter-spacing: 0.07em;
     text-transform: uppercase;
-    color: var(--grau);
-    padding: 12px 14px;
+    color: var(--text-3);
+    padding: 13px 16px;
     border-bottom: 1px solid var(--linie);
     white-space: nowrap;
-    background: #fbfcfa;
-    position: sticky;
-    top: 0;
   }
   thead th.sortierbar { cursor: pointer; user-select: none; }
-  thead th.sortierbar:hover { color: var(--text); }
-  thead th .pfeil { color: var(--akzent-dkl); font-size: 0.8em; }
-  tbody td { padding: 11px 14px; border-bottom: 1px solid var(--linie); vertical-align: middle; }
+  thead th.sortierbar:hover { color: var(--text-2); }
+  thead th .pfeil { color: var(--akzent-dkl); }
+  tbody td { padding: 12px 16px; border-bottom: 1px solid var(--linie); vertical-align: middle; }
   tbody tr:last-child td { border-bottom: 0; }
   tbody tr { cursor: pointer; }
-  tbody tr:hover { background: #fafbf9; }
+  tbody tr:hover { background: var(--tint); }
   td.name { font-weight: 500; }
-  td.mono { font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace; font-size: 0.85em; color: var(--grau); }
-  td.grau { color: var(--grau); }
+  td.mono { font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace; font-size: 0.85em; color: var(--text-2); }
+  td.grau { color: var(--text-2); }
 
   /* ---------- Etiketten-Ansicht ---------- */
 
-  .wahlliste { max-height: 62vh; overflow: auto; }
+  .wahlliste { max-height: 60vh; overflow: auto; }
   .wahlliste label {
     display: flex; align-items: center; gap: 12px;
-    padding: 9px 4px; border-bottom: 1px solid var(--linie);
-    font-size: 0.9rem; cursor: pointer;
+    padding: 10px 6px; border-bottom: 1px solid var(--linie);
+    font-size: 0.88rem; cursor: pointer;
   }
   .wahlliste label:last-child { border-bottom: 0; }
+  .wahlliste label:hover { background: var(--tint); }
   .wahlliste input[type="checkbox"] { width: 16px; height: 16px; flex: none; accent-color: var(--akzent); }
   .wahlliste .nam { flex: 1; min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
-  .wahlliste .neben { color: var(--grau); font-size: 0.82rem; white-space: nowrap; }
+  .wahlliste .neben { color: var(--text-3); font-size: 0.81rem; white-space: nowrap; }
 
-  /* ---------- Detail (Überlagerung) ---------- */
+  /* ---------- Detail (Ueberlagerung) ---------- */
 
+  /* Der Schleier ist weiss und nicht grau oder schwarz: die Anwendung soll
+     auch im Hintergrund weiss bleiben. Getrennt wird die Tafel vom Inhalt
+     durch ihre Linie und den sehr weichen Schatten. */
   .ueberlagerung {
-    position: fixed; inset: 0; z-index: 20;
-    background: rgba(17, 17, 17, 0.42);
+    position: fixed; inset: 0; z-index: 30;
+    background: rgba(255, 255, 255, 0.72);
+    -webkit-backdrop-filter: blur(3px);
+    backdrop-filter: blur(3px);
     display: flex; justify-content: flex-end;
   }
   .ueberlagerung[hidden] { display: none; }
   .tafel {
-    width: min(680px, 100%);
-    background: var(--karte);
+    width: min(700px, 100%);
+    background: #fff;
     height: 100%;
     overflow-y: auto;
     display: flex; flex-direction: column;
-    box-shadow: -18px 0 44px rgba(0, 0, 0, 0.12);
+    border-left: 1px solid var(--linie);
+    box-shadow: -30px 0 60px rgba(16, 18, 8, 0.08);
   }
   .tafel .tkopf {
     position: sticky; top: 0; z-index: 2;
-    background: var(--karte);
+    background: #fff;
     border-bottom: 1px solid var(--linie);
-    padding: 18px 24px;
+    padding: 17px 26px;
     display: flex; align-items: center; gap: 14px;
   }
-  .tafel .tkopf h2 { font-size: 1.05rem; font-weight: 600; flex: 1; min-width: 0;
-    overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
-  .tafel .tkopf .zu {
-    font: inherit; font-size: 1.35rem; line-height: 1;
-    border: 0; background: transparent; color: var(--grau); cursor: pointer; padding: 4px 8px;
+  .tafel .tkopf h2 {
+    font-size: 1.05rem; font-weight: 600; letter-spacing: -0.02em;
+    flex: 1; min-width: 0;
+    overflow: hidden; text-overflow: ellipsis; white-space: nowrap;
   }
-  .tafel .tkoerper { padding: 22px 24px 28px; flex: 1; }
+  .tafel .tkopf .zu {
+    display: flex; padding: 6px;
+    border: 0; border-radius: 6px; background: transparent;
+    color: var(--text-3); cursor: pointer;
+  }
+  .tafel .tkopf .zu svg {
+    width: 18px; height: 18px;
+    stroke: currentColor; fill: none; stroke-width: 1.6; stroke-linecap: round;
+  }
+  .tafel .tkopf .zu:hover { color: var(--text); background: var(--tint); }
+  .tafel .tkoerper { padding: 24px 26px 30px; flex: 1; }
   .tafel .tfuss {
     position: sticky; bottom: 0;
-    background: var(--karte);
+    background: #fff;
     border-top: 1px solid var(--linie);
-    padding: 14px 24px;
-    display: flex; gap: 10px; flex-wrap: wrap; align-items: center;
+    padding: 14px 26px;
+    display: flex; gap: 8px; flex-wrap: wrap; align-items: center;
   }
-  .tafel .tfuss .rechts { margin-left: auto; display: flex; gap: 10px; flex-wrap: wrap; }
+  .tafel .tfuss .rechts { margin-left: auto; display: flex; gap: 8px; flex-wrap: wrap; }
 
-  .raster { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; }
+  .raster { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
   .raster .voll { grid-column: 1 / -1; }
   @media (max-width: 620px) { .raster { grid-template-columns: 1fr; } }
 
-  .abschnitt { margin-top: 26px; padding-top: 20px; border-top: 1px solid var(--linie); }
-  .abschnitt h3 {
-    font-size: 0.7rem; font-weight: 600; letter-spacing: 0.14em;
-    text-transform: uppercase; color: var(--grau); margin-bottom: 14px;
-  }
+  .abschnitt { margin-top: 28px; padding-top: 24px; border-top: 1px solid var(--linie); }
+  .abschnitt h3 { font-size: 0.88rem; font-weight: 600; letter-spacing: -0.01em; margin-bottom: 16px; }
 
-  .verlauf { display: grid; gap: 0; }
+  .verlauf-form { display: grid; grid-template-columns: 170px minmax(0, 1fr) auto; gap: 12px; align-items: end; }
+  @media (max-width: 620px) { .verlauf-form { grid-template-columns: 1fr; } }
+
+  .verlauf { margin-top: 18px; }
   .verlauf .v {
-    padding: 12px 0 12px 16px;
-    border-left: 2px solid var(--linie);
+    padding: 12px 0 12px 18px;
+    border-left: 1px solid var(--linie);
     position: relative;
-    font-size: 0.88rem;
+    font-size: 0.87rem;
   }
   .verlauf .v::before {
-    content: ""; position: absolute; left: -5px; top: 17px;
-    width: 8px; height: 8px; border-radius: 50%;
-    background: var(--linie-stark);
+    content: ""; position: absolute; left: -4px; top: 18px;
+    width: 7px; height: 7px; border-radius: 50%;
+    background: var(--linie-2);
   }
   .verlauf .v:first-child::before { background: var(--akzent); }
   .verlauf .v .kopfzeile { display: flex; gap: 10px; flex-wrap: wrap; align-items: baseline; }
   .verlauf .v .aktion { font-weight: 600; }
-  .verlauf .v .wann { color: var(--grau-hell); font-size: 0.8rem; }
-  .verlauf .v .wer { color: var(--grau); font-size: 0.8rem; }
-  .verlauf .v .txt { margin-top: 3px; color: var(--grau); white-space: pre-wrap; overflow-wrap: anywhere; }
+  .verlauf .v .wann { color: var(--text-3); font-size: 0.79rem; }
+  .verlauf .v .wer { color: var(--text-2); font-size: 0.79rem; }
+  .verlauf .v .txt { margin-top: 4px; color: var(--text-2); white-space: pre-wrap; overflow-wrap: anywhere; }
 
-  .qr-kasten { display: none; margin-top: 16px; text-align: center; }
+  .qr-kasten {
+    display: none;
+    margin-top: 24px; padding-top: 22px;
+    border-top: 1px solid var(--linie);
+    text-align: center;
+  }
   .qr-kasten.offen { display: block; }
-  .qr-kasten .bild { width: 168px; height: 168px; margin: 0 auto; }
+  .qr-kasten .bild { width: 164px; height: 164px; margin: 0 auto; }
   .qr-kasten .bild svg { width: 100%; height: 100%; display: block; }
   .qr-kasten .adr {
-    margin-top: 10px; font-size: 0.8rem; color: var(--grau);
+    margin-top: 12px; font-size: 0.78rem; color: var(--text-3);
     font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
     overflow-wrap: anywhere;
   }
 
   /* ---------- schmale Bildschirme ---------- */
 
-  @media (max-width: 820px) {
-    .app { flex-direction: column; }
-    .seite {
-      width: 100%; height: auto; position: static;
-      flex-direction: row; align-items: center; flex-wrap: wrap;
-      gap: 12px 18px; padding: 14px 18px;
-    }
-    .seite .logo { width: 108px; margin: 0; }
-    .seite .produkt { display: none; }
-    .seite nav { grid-auto-flow: column; gap: 4px; }
-    .seite nav button span { display: none; }
-    .seite nav button { padding: 9px 11px; }
-    .seite .fuss { margin: 0 0 0 auto; padding: 0; border: 0; display: flex; align-items: center; gap: 12px; }
-    .seite .fuss .name, .seite .fuss .adresse { display: none; }
-    .inhalt { padding: 22px 18px 48px; }
+  @media (max-width: 720px) {
+    .bahn { padding: 0 18px; }
+    .kopf-oben { padding: 14px 0 12px; gap: 10px; }
+    .logo { width: 106px; }
+    .konto-text { display: none; }
+    .inhalt { padding: 26px 18px 70px; }
+    .tafel .tkopf, .tafel .tfuss { padding-left: 18px; padding-right: 18px; }
+    .tafel .tkoerper { padding: 20px 18px 26px; }
+  }
+  @media (max-width: 480px) {
+    .produkt, .strich { display: none; }
   }
 </style>
 </head>
 <body>
 
-<div class="app">
+<!-- ================= Kopfzeile ================= -->
+<header class="kopf">
+  <div class="bahn kopf-oben">
+    <a class="marke" href="index.html" aria-label="Startseite">
+      <img class="logo" width="710" height="169" alt="Campus Sursee"
+           src="https://www.campus-sursee.ch/wp-content/themes/campus-sursee/assets/images/Campus_Sursee_Hauptlogo_RGB.svg">
+    </a>
+    <span class="strich" aria-hidden="true"></span>
+    <span class="produkt">ICT Lager</span>
 
-  <!-- ================= Seitenleiste ================= -->
-  <aside class="seite">
-    <svg class="logo" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 710.4 168.6" role="img" aria-label="Campus Sursee"><path fill="currentColor" d="M37.4 12c10.9 0 20.2 5.9 23.8 15.1l.4 1.1 11.7-5.3-.4-1C67.4 8.4 53.8 0 37.3 0 20 0 4.7 10.3.1 25.1L0 55.2l.1.3C4.7 70.3 20 80.6 37.3 80.6c16.4 0 30.1-8.4 35.6-21.9l.4-1-11.7-5.3-.4 1.1c-3.6 9.2-12.9 15.1-23.8 15.1-11.4 0-21.8-7.1-24.5-16.6V28.6C15.5 19.1 26 12 37.4 12zM307.4.8H275v78h12.8V51.5h19.6c11.7 0 22.6-6.8 25.8-16.1l.1-18.3-.1-.4C330 7.6 319.1.8 307.4.8zm12.9 19.7V32c-2 4.6-7.6 7.8-13.7 7.8h-18.8V12.7h18.8c6.1 0 11.7 3.2 13.7 7.8zM400.9 59.4c-2.1 4.6-8.6 9.1-18.5 9.1-9.7 0-16.3-4.5-18.5-9.1V.8h-12.8v62.6l.1.2c4.2 10 16.7 16.8 31.2 16.8 14.4 0 27-6.7 31.3-16.8l.1-.2V.8h-12.9v58.6zM212.4 49.9 187.5.8h-16.9v78.1H183V18.5l24.7 48.4h9.3l24.7-48.4v60.4h12.5V.8h-17zM461.5 80.5c13.3 0 24.9-6.5 29-16.1l.1-.2V50.5l-.1-.2c-2.6-6.3-8.5-11.4-16.2-13.9-4.5-1.6-8.1-2.1-11.6-2.6-2.9-.4-5.7-.8-8.8-1.8-4.3-1.5-7-3.5-8.4-6.5v-5.6c2.3-4.9 8.3-8.1 15.5-8.1 8.4 0 15.3 4.3 18.3 11.4l.5 1.1 11.4-5.4-.4-1C486.6 7 475 0 461.2 0c-12.9 0-24.3 6.5-28.3 16.2l-.1.2v12.4l.1.4c2.4 6.2 8.1 11.1 16.1 13.8 4.4 1.5 7.9 2 11.2 2.4 3 .4 5.9.8 9.1 1.9 4.2 1.4 6.9 3.6 8.4 6.7v6.4c-2.3 5-8.6 8.2-16.2 8.2-8.8 0-16-4.4-19.2-11.9l-.5-1.1-11.1 5.8.4.9c4.2 11 16.4 18.2 30.4 18.2zM112.8.8 82.8 75v3.8h12l7.3-18.6h36.2l7.3 18.6h12.2v-3.9L127.8.8h-15zm20.9 47.7h-26.9l13.5-34 13.4 34zM710.4 101V89H656v78h54.4v-12h-41.6v-21.5h38.4v-11.9h-38.4V101zM303.7 99.9c8.4 0 15.3 4.3 18.3 11.4l.5 1.1 11.4-5.4-.4-1c-4.2-10.9-15.9-17.9-29.6-17.9-12.9 0-24.3 6.5-28.3 16.2l-.1.2v12.4l.1.4c2.4 6.2 8.1 11.1 16.1 13.8 4.4 1.5 7.9 2 11.2 2.4 3 .4 5.9.8 9.1 1.9 4.2 1.4 6.9 3.6 8.4 6.7v6.4c-2.3 5-8.6 8.2-16.2 8.2-8.8 0-16-4.4-19.2-11.8l-.5-1.1-11.1 5.8.4 1c4.2 10.7 16.5 17.9 30.5 17.9 13.3 0 24.9-6.5 29-16.1l.1-.2v-13.7l-.1-.2c-2.6-6.3-8.5-11.4-16.2-13.9-4.5-1.6-8.1-2.1-11.6-2.6-2.9-.4-5.7-.8-8.8-1.8-4.3-1.5-7-3.5-8.4-6.5v-5.6c2.1-4.8 8.2-8 15.4-8zM537.5 99.9c8.4 0 15.3 4.3 18.3 11.4l.5 1.1 11.4-5.4-.4-1c-4.2-10.9-15.8-17.9-29.6-17.9-12.9 0-24.3 6.5-28.3 16.2l-.1.2v12.4l.1.4c2.4 6.2 8.1 11.1 16.1 13.8 4.4 1.5 7.9 2 11.2 2.4 3 .4 5.9.8 9.1 1.9 4.2 1.4 6.9 3.6 8.4 6.7v6.4c-2.3 5-8.6 8.2-16.2 8.2-8.8 0-16-4.4-19.2-11.8l-.5-1.1-11.1 5.8.4.9c4.2 10.7 16.5 17.9 30.5 17.9 13.3 0 24.9-6.5 29-16.1l.1-.2v-13.7l-.1-.2c-2.6-6.3-8.5-11.4-16.2-13.9-4.5-1.6-8.1-2.1-11.6-2.6-2.9-.4-5.7-.8-8.8-1.8-4.3-1.5-7-3.5-8.4-6.5v-5.6c2.1-4.7 8.1-7.9 15.4-7.9zM491.3 121.3l.1-15.9-.1-.4c-3.2-9.3-14-16-25.7-16h-33.8v78h12.8v-29.6h16.8L481 167h12.4v-4l-18.3-27.2c7.8-2.6 13.9-8 16.2-14.5zm-12.8-12.7v9.4c-2 4.6-7.6 7.8-13.7 7.8h-20.2v-25h20.2c6.2 0 11.8 3.2 13.7 7.8zM583.6 167h54.5v-12h-41.7v-21.5h38.4v-11.9h-38.4V101h41.7V89h-54.5zM400.8 147.5c-2.1 4.6-8.6 9.1-18.5 9.1-9.7 0-16.3-4.5-18.5-9.1V89H351v62.6l.1.2c4.2 10 16.7 16.8 31.2 16.8 14.4 0 27-6.7 31.3-16.8l.1-.2V88.9h-12.9v58.6z"/><path fill="#84B819" d="M511.2 83.8c0-6.3-5.1-11.4-11.4-11.4-6.3 0-11.4 5.1-11.4 11.4s5.1 11.4 11.4 11.4c6.3-.1 11.4-5.1 11.4-11.4z"/></svg>
-    <div class="produkt">ICT Lager</div>
-
-    <nav>
-      <button type="button" data-ansicht="dashboard" aria-current="page">
-        <svg viewBox="0 0 24 24"><rect x="3.5" y="3.5" width="7" height="7" rx="1.5"/><rect x="13.5" y="3.5" width="7" height="7" rx="1.5"/><rect x="3.5" y="13.5" width="7" height="7" rx="1.5"/><rect x="13.5" y="13.5" width="7" height="7" rx="1.5"/></svg>
-        <span>Dashboard</span>
-      </button>
-      <button type="button" data-ansicht="geraete">
-        <svg viewBox="0 0 24 24"><rect x="2.5" y="4.5" width="19" height="12" rx="1.5"/><line x1="8" y1="20" x2="16" y2="20"/><line x1="12" y1="16.5" x2="12" y2="20"/></svg>
-        <span>Geräte</span>
-      </button>
-      <button type="button" data-ansicht="etiketten">
-        <svg viewBox="0 0 24 24"><path d="M3.5 8.5h17v10a1.5 1.5 0 0 1-1.5 1.5H5a1.5 1.5 0 0 1-1.5-1.5z"/><path d="M6.5 8.5V5.5a1.5 1.5 0 0 1 1.5-1.5h8a1.5 1.5 0 0 1 1.5 1.5v3"/><rect x="7.5" y="11.5" width="5" height="5" rx="0.6"/></svg>
-        <span>Etiketten</span>
-      </button>
-    </nav>
-
-    <div class="fuss">
-      <div class="name" id="konto-name"></div>
-      <div class="adresse" id="konto-adresse"></div>
-      <button type="button" id="btn-abmelden">Abmelden</button>
+    <div class="konto">
+      <div class="konto-text">
+        <div class="name" id="konto-name"></div>
+        <div class="adresse" id="konto-adresse"></div>
+      </div>
+      <button type="button" class="knopf klein" id="btn-abmelden">Abmelden</button>
     </div>
-  </aside>
+  </div>
 
-  <!-- ================= Inhalt ================= -->
-  <main class="inhalt">
+  <div class="bahn">
+    <nav class="reiter">
+      <button type="button" data-ansicht="dashboard" aria-current="page">Dashboard</button>
+      <button type="button" data-ansicht="geraete">Geräte</button>
+      <button type="button" data-ansicht="etiketten">Etiketten</button>
+    </nav>
+  </div>
+</header>
 
-    <div class="meldung fehler" id="global-fehler" hidden></div>
+<!-- ================= Inhalt ================= -->
+<main class="inhalt">
 
-    <!-- ---------- Dashboard ---------- -->
-    <section class="ansicht" id="a-dashboard">
-      <div class="kopf">
-        <div>
-          <h1>Dashboard</h1>
-          <div class="unter" id="db-stand">wird geladen …</div>
-        </div>
-        <div class="rechts">
-          <button type="button" class="knopf" id="btn-neuladen">Neu laden</button>
-        </div>
+  <div class="meldung fehler" id="global-fehler" hidden></div>
+
+  <!-- ---------- Dashboard ---------- -->
+  <section class="ansicht" id="a-dashboard">
+    <div class="seitenkopf">
+      <div>
+        <h1>Dashboard</h1>
+        <div class="unter" id="db-stand">wird geladen …</div>
       </div>
-
-      <div class="kennzahlen" id="db-kennzahlen"></div>
-
-      <div class="spalten2">
-        <div class="karte">
-          <h2>Verteilung nach Kategorie</h2>
-          <div class="balken" id="db-kategorien"></div>
-        </div>
-        <div class="karte">
-          <h2>End of Life</h2>
-          <div class="eol-liste" id="db-eol"></div>
-        </div>
+      <div class="aktionen">
+        <button type="button" class="knopf" id="btn-neuladen">Neu laden</button>
       </div>
-    </section>
+    </div>
 
-    <!-- ---------- Geräte ---------- -->
-    <section class="ansicht" id="a-geraete" hidden>
-      <div class="kopf">
-        <div>
-          <h1>Geräte</h1>
-          <div class="unter" id="ge-anzahl"></div>
-        </div>
-        <div class="rechts">
-          <button type="button" class="knopf haupt" id="btn-neu">Neues Gerät</button>
-        </div>
+    <div class="kennzahlen" id="db-kennzahlen"></div>
+
+    <div class="spalten2">
+      <div class="tafelchen">
+        <h2>Verteilung nach Kategorie</h2>
+        <div class="balken" id="db-kategorien"></div>
       </div>
-
-      <div class="werkzeuge">
-        <div class="suche">
-          <input type="search" id="ge-suche" placeholder="Suchen — Name, Asset-Nr., Seriennummer, IP, MAC, Owner"
-                 autocomplete="off" spellcheck="false">
-        </div>
-        <select id="ge-kategorie" aria-label="Kategorie"></select>
-        <select id="ge-status" aria-label="Status"></select>
+      <div class="tafelchen">
+        <h2>End of Life</h2>
+        <div class="eol-liste" id="db-eol"></div>
       </div>
+    </div>
+  </section>
 
-      <div class="tabellenkasten">
-        <table>
-          <thead>
-            <tr>
-              <th class="sortierbar" data-feld="name">Name</th>
-              <th class="sortierbar" data-feld="assetNr">Asset-Nr.</th>
-              <th class="sortierbar" data-feld="kategorie">Kategorie</th>
-              <th class="sortierbar" data-feld="status">Status</th>
-              <th class="sortierbar" data-feld="standort">Standort</th>
-              <th class="sortierbar" data-feld="owner">Owner</th>
-              <th class="sortierbar" data-feld="endOfLife">EOL</th>
-            </tr>
-          </thead>
-          <tbody id="ge-koerper"></tbody>
-        </table>
-        <div class="leer" id="ge-leer" hidden></div>
+  <!-- ---------- Geräte ---------- -->
+  <section class="ansicht" id="a-geraete" hidden>
+    <div class="seitenkopf">
+      <div>
+        <h1>Geräte</h1>
+        <div class="unter" id="ge-anzahl"></div>
       </div>
-    </section>
-
-    <!-- ---------- Etiketten ---------- -->
-    <section class="ansicht" id="a-etiketten" hidden>
-      <div class="kopf">
-        <div>
-          <h1>Etiketten</h1>
-          <div class="unter">Geräte auswählen und die Druckvorschau öffnen.</div>
-        </div>
-        <div class="rechts">
-          <button type="button" class="knopf" id="btn-et-nichts">Auswahl aufheben</button>
-          <button type="button" class="knopf haupt" id="btn-et-drucken" disabled>Druckvorschau</button>
-        </div>
+      <div class="aktionen">
+        <button type="button" class="knopf haupt" id="btn-neu">Neues Gerät</button>
       </div>
+    </div>
 
-      <div class="werkzeuge">
-        <div class="suche">
-          <input type="search" id="et-suche" placeholder="Geräte suchen" autocomplete="off" spellcheck="false">
-        </div>
-        <button type="button" class="knopf" id="btn-et-alle">Alle sichtbaren auswählen</button>
+    <div class="werkzeuge">
+      <div class="suchfeld">
+        <svg viewBox="0 0 24 24" aria-hidden="true">
+          <circle cx="11" cy="11" r="6.5"/><path d="m16 16 4.5 4.5"/>
+        </svg>
+        <input type="search" id="ge-suche" placeholder="Name, Asset-Nr., Seriennummer, IP, MAC, Owner"
+               autocomplete="off" spellcheck="false" aria-label="Geräte suchen">
       </div>
+      <select id="ge-kategorie" aria-label="Kategorie"></select>
+      <select id="ge-status" aria-label="Status"></select>
+    </div>
 
-      <div class="karte">
-        <h2><span id="et-anzahl">0</span> ausgewählt</h2>
-        <div class="wahlliste" id="et-liste"></div>
+    <div class="tabellenkasten">
+      <table>
+        <thead>
+          <tr>
+            <th class="sortierbar" data-feld="name">Name</th>
+            <th class="sortierbar" data-feld="assetNr">Asset-Nr.</th>
+            <th class="sortierbar" data-feld="kategorie">Kategorie</th>
+            <th class="sortierbar" data-feld="status">Status</th>
+            <th class="sortierbar" data-feld="standort">Standort</th>
+            <th class="sortierbar" data-feld="owner">Owner</th>
+            <th class="sortierbar" data-feld="endOfLife">EOL</th>
+          </tr>
+        </thead>
+        <tbody id="ge-koerper"></tbody>
+      </table>
+      <div class="leer" id="ge-leer" hidden></div>
+    </div>
+  </section>
+
+  <!-- ---------- Etiketten ---------- -->
+  <section class="ansicht" id="a-etiketten" hidden>
+    <div class="seitenkopf">
+      <div>
+        <h1>Etiketten</h1>
+        <div class="unter">Geräte auswählen und die Druckvorschau öffnen.</div>
       </div>
-    </section>
+      <div class="aktionen">
+        <button type="button" class="knopf" id="btn-et-nichts">Auswahl aufheben</button>
+        <button type="button" class="knopf haupt" id="btn-et-drucken" disabled>Druckvorschau</button>
+      </div>
+    </div>
 
-  </main>
-</div>
+    <div class="werkzeuge">
+      <div class="suchfeld">
+        <svg viewBox="0 0 24 24" aria-hidden="true">
+          <circle cx="11" cy="11" r="6.5"/><path d="m16 16 4.5 4.5"/>
+        </svg>
+        <input type="search" id="et-suche" placeholder="Geräte suchen"
+               autocomplete="off" spellcheck="false" aria-label="Geräte suchen">
+      </div>
+      <button type="button" class="knopf" id="btn-et-alle">Alle sichtbaren auswählen</button>
+    </div>
+
+    <div class="tafelchen">
+      <h2><span id="et-anzahl">0</span> ausgewählt</h2>
+      <div class="wahlliste" id="et-liste"></div>
+    </div>
+  </section>
+
+</main>
 
 
 <!-- ================= Detail-Tafel ================= -->
@@ -535,7 +574,9 @@
 
     <div class="tkopf">
       <h2 id="t-titel">Gerät</h2>
-      <button type="button" class="zu" id="btn-schliessen" aria-label="Schliessen">&times;</button>
+      <button type="button" class="zu" id="btn-schliessen" aria-label="Schliessen">
+        <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M6 6l12 12M18 6L6 18"/></svg>
+      </button>
     </div>
 
     <div class="tkoerper">
@@ -581,10 +622,10 @@
           <label class="feld"><span>End of Life</span>
             <input type="date" id="f-endOfLife"></label>
 
-          <label class="feld voll"><span>Öffentliche Beschreibung — erscheint auf der Geräteseite beim QR-Code</span>
+          <label class="feld voll"><span>Öffentliche Beschreibung, erscheint auf der Geräteseite beim QR-Code</span>
             <textarea id="f-beschreibungOeffentlich" maxlength="4000"></textarea></label>
 
-          <label class="feld voll"><span>Interne Notizen — bleiben intern</span>
+          <label class="feld voll"><span>Interne Notizen, bleiben intern</span>
             <textarea id="f-notizenIntern" maxlength="4000"></textarea></label>
         </div>
       </form>
@@ -596,14 +637,14 @@
 
       <div class="abschnitt" id="t-verlauf-abschnitt">
         <h3>Verlauf</h3>
-        <div class="raster" style="grid-template-columns: 180px 1fr auto; align-items: end;">
+        <div class="verlauf-form">
           <label class="feld"><span>Aktion</span>
             <input type="text" id="v-aktion" placeholder="z.B. Reparatur" maxlength="120"></label>
           <label class="feld"><span>Notiz</span>
             <input type="text" id="v-text" placeholder="Was ist passiert?" maxlength="1000"></label>
           <button type="button" class="knopf" id="btn-v-anlegen">Eintrag hinzufügen</button>
         </div>
-        <div class="verlauf" id="t-verlauf" style="margin-top:16px"></div>
+        <div class="verlauf" id="t-verlauf"></div>
       </div>
     </div>
 
@@ -634,7 +675,7 @@
 "use strict";
 
 /* ====================================================================
-   admin.html — Verwaltung des ICT-Lagers.
+   admin.html, Verwaltung des ICT-Lagers.
 
    Eine Seite, drei Ansichten (Dashboard, Geräte, Etiketten) und eine
    Detail-Tafel, die von rechts einfährt. Die Geräte werden EINMAL geladen
@@ -650,7 +691,11 @@
 
 const el = id => document.getElementById(id);
 
-/* Bezeichnungen der Felder — für die Verlaufseinträge beim Ändern. */
+/* Platzhalter für ein leeres Tabellenfeld. Bewusst ein einfacher Bindestrich:
+   die Anwendung kommt ohne Geviertstriche aus. */
+const LEER_ZEICHEN = "-";
+
+/* Bezeichnungen der Felder, für die Verlaufseinträge beim Ändern. */
 const FELD_BEZEICHNUNG = {
   name: "Gerätename",
   assetNr: "Asset-Nr.",
@@ -695,7 +740,7 @@ function fehlerZeigen(knotenId, e) {
   k.hidden = false;
 }
 
-/* Baut ein Element mit Text — spart überall den Dreisatz aus
+/* Baut ein Element mit Text, spart überall den Dreisatz aus
    createElement / className / textContent. */
 function knoten(tag, klasse, text) {
   const k = document.createElement(tag);
@@ -728,7 +773,7 @@ function ansichtZeigen(name) {
   for (const abschnitt of document.querySelectorAll(".ansicht")) {
     abschnitt.hidden = abschnitt.id !== "a-" + name;
   }
-  for (const knopf of document.querySelectorAll(".seite nav button")) {
+  for (const knopf of document.querySelectorAll(".reiter button")) {
     if (knopf.dataset.ansicht === name) knopf.setAttribute("aria-current", "page");
     else knopf.removeAttribute("aria-current");
   }
@@ -736,7 +781,7 @@ function ansichtZeigen(name) {
   location.hash = name;
 }
 
-for (const knopf of document.querySelectorAll(".seite nav button")) {
+for (const knopf of document.querySelectorAll(".reiter button")) {
   knopf.addEventListener("click", () => ansichtZeigen(knopf.dataset.ansicht));
 }
 
@@ -915,19 +960,19 @@ function tabelleZeichnen() {
     const zeile = document.createElement("tr");
 
     zeile.appendChild(knoten("td", "name", g.name || "Ohne Namen"));
-    zeile.appendChild(knoten("td", "mono", g.assetNr || "—"));
-    zeile.appendChild(knoten("td", "grau", g.kategorie || "—"));
+    zeile.appendChild(knoten("td", "mono", g.assetNr || LEER_ZEICHEN));
+    zeile.appendChild(knoten("td", "grau", g.kategorie || LEER_ZEICHEN));
 
     const tdStatus = document.createElement("td");
     tdStatus.appendChild(statusMarke(g.status));
     zeile.appendChild(tdStatus);
 
-    zeile.appendChild(knoten("td", "grau", g.standort || "—"));
-    zeile.appendChild(knoten("td", "grau", g.owner || "—"));
+    zeile.appendChild(knoten("td", "grau", g.standort || LEER_ZEICHEN));
+    zeile.appendChild(knoten("td", "grau", g.owner || LEER_ZEICHEN));
 
     const zustand = eolZustand(g);
     const tdEol = knoten("td", zustand === "vorbei" ? "" : "grau",
-      g.endOfLife ? Hilfe.datumKurz(g.endOfLife) : "—");
+      g.endOfLife ? Hilfe.datumKurz(g.endOfLife) : LEER_ZEICHEN);
     if (zustand === "vorbei") tdEol.style.color = "var(--rot)";
     zeile.appendChild(tdEol);
 
@@ -1006,7 +1051,7 @@ function etikettenZeichnen() {
     label.appendChild(haken);
     label.appendChild(knoten("span", "nam", g.name || "Ohne Namen"));
     label.appendChild(knoten("span", "neben",
-      (g.assetNr || "ohne Asset-Nr.") + " · " + (g.kategorie || "—")));
+      (g.assetNr || "ohne Asset-Nr.") + " · " + (g.kategorie || LEER_ZEICHEN)));
     liste.appendChild(label);
   }
 
@@ -1039,7 +1084,7 @@ el("btn-et-drucken").addEventListener("click", function () {
   if (!etikettenWahl.size) return;
   // Bewusst OHNE "noopener": das neue Fenster erbt sonst den sessionStorage
   // nicht, und etikette.html müsste den ganzen Weg über Entra nochmals gehen.
-  // Gleicher Ursprung, eigene Seite — hier ist das unbedenklich.
+  // Gleicher Ursprung, eigene Seite, hier ist das unbedenklich.
   window.open("etikette.html?ids=" + Array.from(etikettenWahl).join(","), "_blank");
 });
 
@@ -1048,7 +1093,7 @@ el("btn-et-drucken").addEventListener("click", function () {
 /* Detail-Tafel                                                         */
 /* ==================================================================== */
 
-auswahlFuellen(el("f-kategorie"), KATEGORIEN, "— bitte wählen —");
+auswahlFuellen(el("f-kategorie"), KATEGORIEN, "bitte wählen");
 auswahlFuellen(el("f-status"), STATUS);
 
 function formLesen() {
@@ -1105,7 +1150,7 @@ function detailOeffnen(g) {
 }
 
 /* Ist seit dem Öffnen etwas im Formular geändert worden? Verglichen wird der
-   gelesene Formularstand, nicht das Gerät — damit zählt auch das Zurücksetzen
+   gelesene Formularstand, nicht das Gerät, damit zählt auch das Zurücksetzen
    auf den Ursprungswert korrekt als «nicht geändert». */
 function ungespeicherteAenderungen() {
   if (el("tafel-hintergrund").hidden) return false;

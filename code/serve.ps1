@@ -1,23 +1,23 @@
 <#
-  serve.ps1 — kleiner lokaler Webserver zum Testen.
+  serve.ps1, kleiner lokaler Webserver zum Testen.
 
   Aufruf (von überall her, der Pfad wird selbst gefunden):
       .\code\serve.ps1
 
   Danach im Browser: http://localhost:8000/
 
-  Ausgeliefert wird der Ordner «frontend» neben diesem Skript — also genau
+  Ausgeliefert wird der Ordner «frontend» neben diesem Skript, also genau
   das, was auch Netlify ausliefert. Die Dokumentation in «anleitung» und
   dieses Skript selbst bleiben aussen vor.
 
   Warum überhaupt ein Server? Die Seiten dürfen nicht über file:// geöffnet
   werden: MSAL braucht einen echten Ursprung (Origin) für die Anmeldung, und
   die Umleitungsadresse in der App-Registrierung lautet auf
-  http://localhost:8000/... — genau diese Adresse muss der Browser sehen.
+  http://localhost:8000/..., genau diese Adresse muss der Browser sehen.
 
   Der Server bildet auch die Netlify-Umleitung /g/:id nach, damit sich die
   QR-Codes lokal ausprobieren lassen. Die Kopfzeilen aus _headers setzt er
-  bewusst NICHT — die Content-Security-Policy lässt sich nur auf Netlify
+  bewusst NICHT, die Content-Security-Policy lässt sich nur auf Netlify
   richtig prüfen.
 
   Beenden mit Strg+C.

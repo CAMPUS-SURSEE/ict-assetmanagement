@@ -1,4 +1,4 @@
-/* auth.js — Anmeldung an Entra ID (Microsoft 365) für die internen Seiten
+/* auth.js, Anmeldung an Entra ID (Microsoft 365) für die internen Seiten
    admin.html, etikette.html und setup.html.
 
    Dünner Aufsatz auf MSAL, der offiziellen Anmeldebibliothek von Microsoft.
@@ -28,7 +28,7 @@ const Auth = (function () {
 
   /* Delegierte Berechtigungen. Sites.ReadWrite.All für die SharePoint-Listen.
      User.Read sorgt dafür, dass Entra ein vollständiges Benutzerprofil
-     ausstellt — Name und Adresse für die Verlauf-Spalte «Wer» kommen aus dem
+     ausstellt: Name und Adresse für die Verlauf-Spalte «Wer» kommen aus dem
      ID-Token, das MSAL dabei mitliefert (Auth.konto()).
      Delegiert heisst: das Token kann nur das, was die angemeldete Person in
      SharePoint ohnehin darf. Es ist kein Generalschlüssel. */

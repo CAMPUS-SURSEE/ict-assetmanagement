@@ -1,11 +1,11 @@
-/* graph.js — Zugriff auf die SharePoint-Listen «Geraete» und «Verlauf»
+/* graph.js, Zugriff auf die SharePoint-Listen «Geraete» und «Verlauf»
    der Site mgmts-ict-s über Microsoft Graph.
 
    Die Berechtigung ist delegiert: das Token kann nur das, was die angemeldete
    Person in SharePoint ohnehin darf. Es ist kein Generalschlüssel.
 
    Setzt konfig.js und auth.js voraus. Wird von admin.html, etikette.html und
-   setup.html geladen — NICHT von geraet.html, die kommt ohne Anmeldung aus. */
+   setup.html geladen, NICHT von geraet.html, die kommt ohne Anmeldung aus. */
 
 /* ==================================================================== */
 /* Hilfsfunktionen                                                      */
@@ -94,7 +94,7 @@ const Hilfe = (function () {
 
   /* ---- Adressen ---- */
 
-  /* Öffentliche Adresse eines Geräts — Inhalt des QR-Codes auf der Etikette.
+  /* Öffentliche Adresse eines Geräts, Inhalt des QR-Codes auf der Etikette.
      Die Umleitung /g/:id -> geraet.html?id=:id steht in _redirects. */
   function geraetLink(id) {
     return KONFIG.BASIS_URL.replace(/\/+$/, "") + "/g/" + encodeURIComponent(id);
@@ -199,7 +199,7 @@ const Graph = (function () {
   }
 
   /* Baut den Pfad zu einer Liste. «bezeichner» darf ein Anzeigename oder eine
-     GUID sein — Graph akzeptiert beides an derselben Stelle. */
+     GUID sein, Graph akzeptiert beides an derselben Stelle. */
   async function listenPfad(bezeichner) {
     return "/sites/" + (await siteId()) + "/lists/" + bezeichner;
   }
@@ -467,7 +467,7 @@ const Graph = (function () {
   }
 
   /* Ergänzt fehlende Spalten in einer bestehenden Liste. Vorhandene Spalten
-     werden nicht angefasst — die Funktion ist damit wiederholbar (idempotent). */
+     werden nicht angefasst, die Funktion ist damit wiederholbar (idempotent). */
   async function spaltenErgaenzen(listenId, spalten, melden) {
     const vorhanden = await anfrage("/sites/" + (await siteId())
       + "/lists/" + listenId + "/columns?$select=name,displayName&$top=999");

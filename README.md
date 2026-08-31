@@ -1,4 +1,4 @@
-# ICT Lager — Campus Sursee
+# ICT Lager Campus Sursee
 
 Inventarverwaltung für die Informatikgeräte von Campus Sursee.
 
@@ -19,8 +19,8 @@ eine Chronik, die sich bei jeder Änderung selbst fortschreibt; Etiketten mit
 QR-Code drucken.
 
 **Für alle anderen** (ohne Anmeldung): Wer den QR-Code auf einer Etikette
-scannt, sieht eine kurze Geräteseite — Name, Kategorie, Status, Hersteller,
-Modell, Beschreibung — und die Kontaktangaben des ICT Servicedesks.
+scannt, sieht eine kurze Geräteseite mit Name, Kategorie, Status, Hersteller,
+Modell und Beschreibung sowie die Kontaktangaben des ICT Servicedesks.
 Interne Angaben wie Seriennummer, IP-Adresse, Owner, Preis oder Notizen
 erscheinen dort nie: sie verlassen SharePoint gar nicht erst.
 
@@ -29,7 +29,7 @@ erscheinen dort nie: sie verlassen SharePoint gar nicht erst.
 ## Aufbau des Projekts
 
 ```
-frontend/     wird von Netlify ausgeliefert — und nur das
+frontend/     wird von Netlify ausgeliefert, und nur das
 code/         Werkzeuge für die Entwicklung, nicht im Web
 anleitung/    Einrichtung und technische Dokumentation
 netlify.toml  publish = "frontend", kein Build-Befehl
@@ -69,8 +69,8 @@ Aus dem Projektstamm:
 
 Dann <http://localhost:8000/> öffnen. Beenden mit `Strg+C`.
 
-Das Skript liefert den Ordner `frontend/` aus — also genau das, was auch
-Netlify ausliefert — und bildet zusätzlich die Umleitung `/g/:id` nach, so
+Das Skript liefert den Ordner `frontend/` aus, also genau das, was auch
+Netlify ausliefert, und bildet zusätzlich die Umleitung `/g/:id` nach, so
 dass sich die QR-Codes auch lokal ausprobieren lassen.
 
 Alternativ, wenn Python vorhanden ist (dann allerdings ohne die
@@ -83,14 +83,14 @@ python -m http.server 8000
 
 **Die Seiten dürfen nicht per Doppelklick über `file://` geöffnet werden.**
 MSAL braucht einen echten Ursprung, und die Umleitungsadresse in der
-App-Registrierung lautet auf `http://localhost:8000/…` — genau diese Adresse
+App-Registrierung lautet auf `http://localhost:8000/…`, genau diese Adresse
 muss der Browser sehen.
 
 Damit die Anmeldung lokal funktioniert, müssen in der App-Registrierung die
 `localhost`-Umleitungsadressen eingetragen sein (siehe
 [anleitung/01_Einrichtung.md](anleitung/01_Einrichtung.md), Schritt A.2).
 
-Die Kopfzeilen aus `_headers` setzt der lokale Server bewusst nicht — die
+Die Kopfzeilen aus `_headers` setzt der lokale Server bewusst nicht, die
 Content-Security-Policy lässt sich nur auf Netlify richtig prüfen.
 
 ---
@@ -101,7 +101,7 @@ Content-Security-Policy lässt sich nur auf Netlify richtig prüfen.
 öffnen, die betreffende Site wählen, **Deploys → Drag and drop**, und den
 Ordner **`frontend`** hineinziehen.
 
-> Nicht den Projektstamm ziehen — sonst landet die Anwendung unter
+> Nicht den Projektstamm ziehen, sonst landet die Anwendung unter
 > `/frontend/index.html` statt unter `/`, und `anleitung/` wäre öffentlich
 > abrufbar.
 
@@ -113,7 +113,7 @@ Unterstrich und werden von manchen Werkzeugen als versteckt behandelt.
 von Hand gesetzt werden.
 
 Beim manuellen Weg immer den ganzen Ordner `frontend` ablegen, nicht
-einzelne Dateien — Netlify ersetzt die Site vollständig.
+einzelne Dateien, Netlify ersetzt die Site vollständig.
 
 ---
 
@@ -134,7 +134,7 @@ Die Platzhalter in `frontend/konfig.js` (`HIER_CLIENT_ID_EINTRAGEN`,
 ## Weiterentwickeln
 
 **[anleitung/02_Technische_Dokumentation.md](anleitung/02_Technische_Dokumentation.md)**
-erklärt Architektur, Datenmodell, Sicherheitsmodell und Code-Struktur — und
+erklärt Architektur, Datenmodell, Sicherheitsmodell und Code-Struktur, und
 vor allem, warum die Dinge so gebaut sind, wie sie gebaut sind.
 
 Drei Regeln, die beim Ändern nie verletzt werden dürfen:
@@ -142,7 +142,7 @@ Drei Regeln, die beim Ändern nie verletzt werden dürfen:
 1. **Fremder Inhalt geht nie über `innerHTML` ins Dokument**, sondern immer
    über `textContent`. Für den Ausnahmefall steht `Hilfe.escape()` bereit.
 2. **Die öffentliche Seite bekommt nur, was der Flow herausgibt.** Wer ein
-   Feld öffentlich machen will, ändert den Flow — nicht die Seite. Im
+   Feld öffentlich machen will, ändert den Flow, nicht die Seite. Im
    Browser ausgeblendete Felder sind nicht geschützt, sondern nur unsichtbar.
 3. **Der Flow baut sein JSON mit `addProperty()`**, nie als
    zusammengeklebten Text. Sonst zerlegt der erste Zeilenumbruch in einer

@@ -1,9 +1,9 @@
-# Technische Dokumentation — ICT Lager Campus Sursee
+# Technische Dokumentation ICT Lager Campus Sursee
 
 Stand: August 2026
 
 Diese Dokumentation richtet sich an die Person, die die Anwendung später
-warten muss. Sie erklärt vor allem das *Warum* — das *Was* steht im Code
+warten muss. Sie erklärt vor allem das *Warum*; das *Was* steht im Code
 selbst.
 
 ---
@@ -13,10 +13,10 @@ selbst.
 ICT Lager ist die Inventarverwaltung für die Informatikgeräte von Campus
 Sursee. Sie besteht aus zwei getrennten Welten:
 
-**Innen** — die Verwaltung. Nur für zugewiesene Mitarbeitende der
+**Innen:** die Verwaltung. Nur für zugewiesene Mitarbeitende der
 Informatik. Spricht direkt mit Microsoft Graph und sieht alle Felder.
 
-**Aussen** — eine Seite pro Gerät, erreichbar über den QR-Code auf der
+**Aussen:** eine Seite pro Gerät, erreichbar über den QR-Code auf der
 Etikette. Ohne Anmeldung, ohne Graph, mit genau sechs Feldern.
 
 Diese Trennung ist die zentrale Entwurfsentscheidung. Sie zieht sich durch
@@ -54,7 +54,7 @@ Kein Build-Prozess, kein Bundler, kein Framework, keine
 `node_modules`. Der Ordner `frontend/` ist exakt der Ordner, der
 auf Netlify liegt. Ablage per Drag & Drop.
 
-Das ist bewusst so gewählt — dieselbe Entscheidung wie bei der bestehenden
+Das ist bewusst so gewählt, dieselbe Entscheidung wie bei der bestehenden
 Anwendung «Menüwahl BAULÜÜT». Die Begründung:
 
 - Wer in fünf Jahren eine Kleinigkeit ändern muss, öffnet eine Datei und
@@ -178,7 +178,7 @@ Chronik. Wird nie überschrieben, nur ergänzt.
 `GeraetId` ist bewusst eine **Textspalte** und keine Nachschlagespalte
 (Lookup). Eine Nachschlagespalte würde beim Löschen eines Geräts entweder
 das Löschen blockieren oder die Verlaufseinträge mitreissen. Genau das soll
-nicht passieren: der Verlauf soll überleben, auch wenn das Gerät weg ist —
+nicht passieren: der Verlauf soll überleben, auch wenn das Gerät weg ist,
 sonst lässt sich hinterher nicht mehr nachvollziehen, was mit dem Gerät
 geschehen ist.
 
@@ -194,7 +194,7 @@ geschehen ist.
 | Von Hand erfasst | frei | frei |
 
 Bei den beiden langen Textfeldern (`NotizenIntern`,
-`BeschreibungOeffentlich`) steht nur «… geändert» — der ganze alte und neue
+`BeschreibungOeffentlich`) steht nur «… geändert»; der ganze alte und neue
 Text würde den Verlauf unlesbar machen.
 
 Wird beim Speichern kein Unterschied festgestellt, wird weder geschrieben
@@ -204,7 +204,7 @@ Leereinträgen zuwächst.
 Die Verlaufseinträge laufen über `Graph.verlaufVersuchen()`: schlägt das
 Schreiben fehl, wird das nur in der Konsole vermerkt, aber die eigentliche
 Änderung gilt trotzdem. Die Chronik ist eine Beigabe, nicht die
-Datenhaltung — sie darf nie der Grund sein, dass eine Gerätemutation
+Datenhaltung; sie darf nie der Grund sein, dass eine Gerätemutation
 scheitert.
 
 ---
@@ -226,7 +226,7 @@ parallele Aufrufe nicht mehrfach anfragen). Schlägt die Auflösung fehl, wird
 der Zwischenspeicher geleert, damit ein späterer Versuch es nochmals
 probiert.
 
-Die Listen dürfen in `konfig.js` als Anzeigename **oder** als GUID stehen —
+Die Listen dürfen in `konfig.js` als Anzeigename **oder** als GUID stehen,
 Graph nimmt beides an derselben Stelle. Empfohlen ist die GUID: sie
 überlebt, wenn jemand die Liste in SharePoint umbenennt. `setup.html` zeigt
 sie nach dem Anlegen an.
@@ -239,12 +239,12 @@ und sortiert wird danach in JavaScript.
 
 Der Grund: serverseitige `$filter` auf selbst angelegten Listenspalten
 setzen in SharePoint einen Index voraus. Ohne Index wirft SharePoint ab
-5000 Einträgen einen Fehler — und zwar erst dann, also lange nach der
+5000 Einträgen einen Fehler, und zwar erst dann, also lange nach der
 Einführung, wenn niemand mehr an diese Stelle denkt. Bei einigen hundert bis
 wenigen tausend Geräten ist das Laden der ganzen Liste ohnehin schneller als
 mehrere gefilterte Abfragen.
 
-Ausnahme: der Power-Automate-Flow filtert serverseitig auf `ID` — die
+Ausnahme: der Power-Automate-Flow filtert serverseitig auf `ID`, die
 eingebaute Spalte ist immer indiziert.
 
 Wenn die Feldauswahl scheitert (HTTP 400, etwa weil eine Spalte umbenannt
@@ -255,13 +255,13 @@ mehr Daten über die Leitung, aber die Anwendung funktioniert weiter.
 
 SharePoint speichert Datumswerte als UTC-Zeitstempel. Je nachdem, womit ein
 Eintrag angelegt wurde, steht dort `2026-08-27T22:00:00Z` oder
-`2026-08-28T12:00:00Z` — beides meint denselben Tag in der Schweiz.
+`2026-08-28T12:00:00Z`, beides meint denselben Tag in der Schweiz.
 
 Deshalb:
 
 - **Lesen:** `Hilfe.datumAusSp()` rechnet über die lokale Zeitzone auf
   `JJJJ-MM-TT` um.
-- **Schreiben:** `Hilfe.datumFuerSp()` setzt `T12:00:00Z` — Mittag UTC liegt
+- **Schreiben:** `Hilfe.datumFuerSp()` setzt `T12:00:00Z`; Mittag UTC liegt
   in jeder relevanten Zeitzone am richtigen Tag.
 
 Diese beiden Funktionen sind der einzige Ort, an dem mit
@@ -287,7 +287,7 @@ Graph.listenAnlegen(melden)      // nur für setup.html
 Die Übersetzung zwischen kleingeschriebenen JavaScript-Feldern
 (`endOfLife`) und SharePoint-Spalten (`EndOfLife`) passiert in `ausSp()`
 und `felderAusGeraet()`. `felderAusGeraet()` schreibt nur Felder, die
-tatsächlich mitgegeben wurden — dadurch kann `geraetAendern()` auch nur eine
+tatsächlich mitgegeben wurden, dadurch kann `geraetAendern()` auch nur eine
 einzelne Spalte anfassen.
 
 Auswahlspalten kommen je nach Konfiguration als Text oder als Objekt
@@ -326,7 +326,7 @@ Täuschung.
 - **Registrierung:** als *Einzelseitenanwendung (SPA)*, ohne Client Secret.
   Ein Secret könnte in einer statischen Seite nicht geheim bleiben, und PKCE
   ersetzt es sauber.
-- **Berechtigungen:** delegiert — `Sites.ReadWrite.All` und `User.Read`. Das
+- **Berechtigungen:** delegiert, `Sites.ReadWrite.All` und `User.Read`. Das
   Token kann nur das, was die angemeldete Person in SharePoint ohnehin darf.
   Es ist kein Generalschlüssel. Anwendungsberechtigungen wären genau das und
   werden deshalb nicht verwendet.
@@ -344,7 +344,7 @@ zugewiesen sind die Mitarbeitenden der Informatik.
 
 Nicht zugewiesene Personen bekommen von Entra eine Fehlerantwort und kommen
 gar nie zur Anwendung zurück. Die Prüfung passiert also *vor* der Anwendung,
-nicht *in* ihr — es gibt keine Rollenlogik im JavaScript, die man umgehen
+nicht *in* ihr; es gibt keine Rollenlogik im JavaScript, die man umgehen
 könnte.
 
 Zweite Schranke: das Token ist delegiert. Selbst wer zugewiesen ist, aber
@@ -352,7 +352,7 @@ keinen Zugriff auf die SharePoint-Site `mgmts-ict-s` hat, bekommt von Graph
 ein 403.
 
 `clientId` und `mandantId` stehen offen in `konfig.js`. Das ist bei
-Einzelseitenanwendungen so vorgesehen und kein Fehler — beides sind
+Einzelseitenanwendungen so vorgesehen und kein Fehler; beides sind
 Bezeichner, keine Geheimnisse.
 
 ### 5.4 Content-Security-Policy
@@ -363,7 +363,7 @@ Bezeichner, keine Geheimnisse.
 default-src 'none';
 script-src  'self' 'unsafe-inline' https://cdn.jsdelivr.net;
 style-src   'self' 'unsafe-inline';
-img-src     'self' data:;
+img-src     'self' data: https://www.campus-sursee.ch;
 connect-src 'self' https://graph.microsoft.com
                    https://login.microsoftonline.com
                    https://*.environment.api.powerplatform.com;
@@ -374,10 +374,16 @@ form-action 'none'; base-uri 'none'; frame-ancestors 'none'; object-src 'none'
 Grundhaltung `default-src 'none'`: erlaubt ist nur, was ausdrücklich
 aufgeführt ist.
 
+`https://www.campus-sursee.ch` bei `img-src` deckt genau zwei Dateien ab:
+das Hauptlogo (SVG) und das Favicon (WebP). Beide werden direkt ab der
+Campus-Website geladen und bewusst nicht ins Projekt kopiert, damit sie dem
+Corporate Design automatisch folgen. Fällt die Website aus, fehlt nur das
+Bild; alle Seiten bleiben bedienbar.
+
 `'unsafe-inline'` bei `script-src` ist der Preis für das Muster «eine Seite =
 eine Datei». Er wird abgefedert durch:
 
-- `default-src 'none'` — eingeschleuster Code könnte nirgendwo hin,
+- `default-src 'none'`: eingeschleuster Code könnte nirgendwo hin,
 - die `integrity`-Prüfsummen der beiden CDN-Dateien,
 - und vor allem dadurch, dass nirgends fremder Inhalt als HTML ins Dokument
   gelangt (Abschnitt 5.5).
@@ -394,20 +400,17 @@ Alle Inhalte aus SharePoint, aus dem Flow und aus Formularen gelten als
 fremder Text. Sie werden **ausschliesslich über `textContent`** ins Dokument
 gesetzt, nie über `innerHTML`.
 
-`innerHTML` kommt an genau zwei Stellen vor, beide harmlos:
-
-1. Das von `qrcode-generator` erzeugte SVG (`createSvgTag`) in `admin.html`
-   und `etikette.html`. Es besteht nur aus Rechtecken; die kodierte Adresse
-   erscheint nicht als Text im SVG.
-2. Die Logo-Vorlage in `etikette.html` — ein festes, im Quelltext stehendes
-   SVG.
+`innerHTML` kommt an genau einer Stelle vor, und die ist harmlos: das von
+`qrcode-generator` erzeugte SVG (`createSvgTag`) in `admin.html` und
+`etikette.html`. Es besteht nur aus Rechtecken; die kodierte Adresse
+erscheint nicht als Text im SVG.
 
 Zusätzlich gibt es in `graph.js` `Hilfe.escape()` für den Fall, dass jemand
 später doch einmal `innerHTML` braucht.
 
 Auch CSS-Klassen werden nicht aus fremden Werten gebaut. In `geraet.html`
 und `admin.html` läuft der Statuswert durch eine Tabelle bzw. eine Prüfung
-gegen `STATUS`, bevor daraus eine Klasse wird — sonst könnte ein
+gegen `STATUS`, bevor daraus eine Klasse wird, sonst könnte ein
 manipulierter Wert wie `x" onload="…` ins `class`-Attribut wandern.
 
 ### 5.6 Der anonyme Flow
@@ -419,7 +422,7 @@ Angriffsfläche und Antwort darauf:
 
 | Frage | Antwort |
 |---|---|
-| Kann jemand IDs durchprobieren? | Ja. Er sieht dann Name, Kategorie, Status, Hersteller, Modell und die öffentliche Beschreibung von Geräten — genau das, was auch auf dem Gerät selbst steht. |
+| Kann jemand IDs durchprobieren? | Ja. Er sieht dann Name, Kategorie, Status, Hersteller, Modell und die öffentliche Beschreibung von Geräten, also genau das, was auch auf dem Gerät selbst steht. |
 | Kann jemand schreiben? | Nein. Der Flow kennt nur «Elemente abrufen». |
 | Kann jemand interne Felder sehen? | Nein. Sie sind nicht Teil der Antwort. |
 | Kann jemand den Flow überlasten? | Power Automate drosselt selbst. Ein Ausfall macht die Geräteseite unbrauchbar, aber nicht die Verwaltung. |
@@ -435,7 +438,7 @@ was ein anonymer Flow nicht beantworten würde.
 **Der Flow baut sein JSON mit `addProperty()`, nicht als Text.** Das ist
 kein Schönheitsentscheid. Würde die Antwort als JSON-Text mit `@{…}`
 zusammengeklebt, zerlegte der erste Zeilenumbruch oder das erste
-Anführungszeichen in `BeschreibungOeffentlich` die Antwort — und zwar
+Anführungszeichen in `BeschreibungOeffentlich` die Antwort, und zwar
 ausgerechnet bei den Geräten, deren Beschreibung jemand gepflegt hat. Mit
 `addProperty()` entsteht ein echtes Objekt, das Power Automate selbst
 korrekt serialisiert und maskiert. Die genaue Anleitung samt Testfall steht
@@ -444,7 +447,7 @@ in `anleitung/01_Einrichtung.md`, Schritt C.4 und C.8.
 Ebenso hat der Flow einen **Fehlerzweig** («Ausführen nach: ist
 fehlgeschlagen / übersprungen / Zeitüberschreitung»), der ein sauberes 404
 liefert. Ohne ihn führte ein Aufruf mit `&id=abc` zu HTTP 502, weil
-`int('abc')` im Filter abbricht — und `geraet.html` zeigte eine
+`int('abc')` im Filter abbricht, und `geraet.html` zeigte eine
 unverständliche Meldung statt «Gerät nicht gefunden».
 
 ### 5.7 Was auf der Etikette steht
@@ -453,7 +456,7 @@ Nur der QR-Code, das Campus-Sursee-Logo und `servicedesk@campus-sursee.ch`.
 
 Kein Gerätename, keine Asset-Nummer, keine Seriennummer. Eine Etikette klebt
 auf einem Gerät, das herumgereicht, verliehen und verloren wird. Sie soll
-dem Finder sagen, wen er anrufen kann — und sonst nichts verraten.
+dem Finder sagen, wen er anrufen kann, und sonst nichts verraten.
 
 ---
 
@@ -461,7 +464,7 @@ dem Finder sagen, wen er anrufen kann — und sonst nichts verraten.
 
 ```
 /
-├── frontend/           ausgeliefert von Netlify — und NUR das
+├── frontend/           ausgeliefert von Netlify, und NUR das
 │   ├── index.html      Startseite
 │   ├── admin.html      Verwaltung (Dashboard, Geräte, Etiketten, Detail)
 │   ├── geraet.html     öffentliche Geräteseite
@@ -498,7 +501,7 @@ zurückgegeben, das offen bleibt). Dadurch läuft der Code nach dem Aufruf
 nicht mit halb aufgebautem Zustand weiter.
 
 Die Umleitungsadresse ist immer `origin + pathname`, ohne
-Abfragezeichenfolge — sonst müsste jede Variante wie
+Abfragezeichenfolge, sonst müsste jede Variante wie
 `?ids=1,2,3` einzeln in der App-Registrierung stehen. MSAL merkt sich die
 vollständige Adresse selbst und kehrt am Ende dorthin zurück.
 
@@ -506,12 +509,12 @@ vollständige Adresse selbst und kehrt am Ende dorthin zurück.
 
 Drei Teile:
 
-1. **`Hilfe`** — Text (`escape`, `wert`), Datum (`datumAusSp`,
+1. **`Hilfe`**: Text (`escape`, `wert`), Datum (`datumAusSp`,
    `datumFuerSp`, `datumKurz`, `zeitpunktText`, `heute`, `inMonaten`),
    Adressen (`geraetLink`).
-2. **`KATEGORIEN` / `STATUS`** — die beiden Auswahllisten, einmal definiert
+2. **`KATEGORIEN` / `STATUS`**: die beiden Auswahllisten, einmal definiert
    und überall verwendet.
-3. **`Graph`** — die Fassade aus Abschnitt 4.4, dazu am Ende die
+3. **`Graph`**: die Fassade aus Abschnitt 4.4, dazu am Ende die
    Spaltendefinitionen und `listenAnlegen()` für `setup.html`.
 
 `listenAnlegen()` steht bewusst hier und nicht in `setup.html`: die
@@ -520,7 +523,7 @@ derselben Spalten. Wer eine Spalte ergänzt, sieht beides nebeneinander.
 
 Die Funktion ist wiederholbar (idempotent): bestehende Listen werden gesucht
 statt neu angelegt, bestehende Spalten übersprungen. Ein zweiter Klick auf
-«Listen anlegen» richtet keinen Schaden an — und ist der bequemste Weg, eine
+«Listen anlegen» richtet keinen Schaden an und ist der bequemste Weg, eine
 neu ergänzte Spalte auszurollen.
 
 ### 6.3 `admin.html`
@@ -541,19 +544,19 @@ Aktualisierung des Zustands, die auseinanderlaufen könnte.
 
 Bemerkenswerte Stellen:
 
-- **`passt(g, suchtext)`** — Sofortsuche über Name, Asset-Nr.,
+- **`passt(g, suchtext)`**: Sofortsuche über Name, Asset-Nr.,
   Seriennummer, IP, MAC und Owner. Mehrere Wörter werden mit UND verknüpft:
   «notebook muster» findet das Notebook von Herrn Muster.
-- **`eolZustand(g)`** — `""`, `"bald"` (in unter 6 Monaten) oder `"vorbei"`.
+- **`eolZustand(g)`**: `""`, `"bald"` (in unter 6 Monaten) oder `"vorbei"`.
   Der Vergleich läuft über Zeichenketten im Format `JJJJ-MM-TT`; die sind
   lexikografisch sortierbar, es braucht keine Datumsarithmetik.
-- **`unterschiede(alt, neu)`** — baut den Text für den Verlaufseintrag.
-- **`knoten(tag, klasse, text)`** — der kleine Helfer, der überall den
+- **`unterschiede(alt, neu)`**: baut den Text für den Verlaufseintrag.
+- **`knoten(tag, klasse, text)`**: der kleine Helfer, der überall den
   Dreisatz aus `createElement` / `className` / `textContent` ersetzt. Er ist
   auch der Grund, warum `innerHTML` nirgends nötig ist.
 
 Das Dashboard zeichnet die Kategorieverteilung mit CSS-Balken
-(`width: n%`) — bewusst ohne Diagrammbibliothek. Für neun Balken lohnt sich
+(`width: n%`), bewusst ohne Diagrammbibliothek. Für neun Balken lohnt sich
 keine.
 
 ### 6.4 `etikette.html`
@@ -576,12 +579,12 @@ el("stil-bogen").media   = einzeln ? "not all" : "print";
 - **A4-Bogen:** `@page { size: A4 }`, Etiketten fliessen nebeneinander,
   `break-inside: avoid` verhindert das Zerreissen am Seitenumbruch.
 
-Die Wahl merkt sich der Browser in `localStorage` — eine reine
-Bequemlichkeit, jeder Zugriff darauf steht in `try/catch`.
+Die Wahl merkt sich der Browser in `localStorage`, eine reine
+Bequemlichkeit; jeder Zugriff darauf steht in `try/catch`.
 
 Die Seite lädt die Geräte, obwohl sie für den QR-Code nur die IDs bräuchte.
 Grund: so fällt vor dem Druck auf, wenn eine ausgewählte ID gar nicht mehr
-existiert. Schlägt das Laden fehl, werden die Etiketten trotzdem erzeugt —
+existiert. Schlägt das Laden fehl, werden die Etiketten trotzdem erzeugt,
 der QR-Code hängt nicht an den Gerätedaten.
 
 ### 6.5 `geraet.html`
@@ -599,7 +602,7 @@ Fünf klar getrennte Zustände, alle mit einem lesbaren deutschen Text:
 | HTTP 404 oder `ok: false` | «Gerät nicht gefunden» |
 | anderer HTTP-Fehler | «Die Geräteauskunft antwortet nicht richtig» |
 
-Die Kontaktkarte ist in **jedem** Zustand sichtbar — auch wenn gar nichts
+Die Kontaktkarte ist in **jedem** Zustand sichtbar, auch wenn gar nichts
 geladen werden konnte. Wer ein Gerät findet, soll den Servicedesk erreichen,
 selbst wenn Power Automate gerade streikt. Die Betreffzeile der Mail wird
 mit Gerätename und Nummer vorbereitet.
@@ -611,23 +614,70 @@ Handy aufgerufen, direkt aus der Kamera-App.
 
 ## 7. Gestaltung
 
-- Akzentfarbe `#84B819` (Campus-Sursee-Grün, entnommen aus dem Punkt im
-  offiziellen Logo). Sonst ausschliesslich Graustufen, plus ein gedämpftes
-  Rot `#a13b1e` für Warnungen und das Löschen.
-- Alle Farben als CSS-Variablen in `:root`.
-- Systemschriften, kein Webfont — nichts nachzuladen, nichts zu blockieren.
-- Radius 10 px, 1 px Rahmen, keine Schatten ausser an der Detail-Tafel.
-- Die Verwaltung hat eine dunkle Seitenleiste (`#1a1a1a`) und einen hellen
-  Inhaltsbereich (`#f5f6f4`) — damit fühlt sie sich wie eine Anwendung an und
-  nicht wie ein Dokument.
-- Das Logo ist als Inline-SVG eingebettet und nimmt über `currentColor` die
-  Textfarbe an; deshalb funktioniert dasselbe SVG auf der dunklen
-  Seitenleiste wie auf weissem Grund. Der grüne Punkt behält seine Farbe.
-- Kein Framework, kein Tailwind, kein Icon-Paket. Die wenigen Symbole in der
-  Seitenleiste sind handgeschriebene SVG-Pfade.
+Leitgedanke: **reines Weiss, Struktur nur aus Linien.** Es gibt in der
+ganzen Anwendung keine einzige gefüllte Fläche als Hintergrund, keinen
+grauen Grundton und keine dunklen Bereiche. Was zusammengehört, wird durch
+eine 1 px starke Haarlinie, durch Abstand oder durch Schriftgewicht
+abgegrenzt, nicht durch einen Farbblock.
 
-Ansprechverhalten: unter 820 px klappt die Seitenleiste in eine waagrechte
-Leiste um, die Beschriftungen weichen den Symbolen. `geraet.html` ist von
+- Hintergrund überall `#ffffff`. Auch Karten, Tabellenköpfe, Meldungen und
+  die Detail-Tafel sind weiss; sichtbar sind nur ihre Rahmen.
+- Farbpalette als CSS-Variablen in `:root`, in jeder Seite identisch:
+  `--akzent #84B819` (Campus-Sursee-Grün aus dem Punkt im offiziellen Logo),
+  `--text #101208`, `--text-2 #5f6359`, `--text-3 #8d9187`,
+  `--linie #e7e8e3`, `--linie-2 #d2d4cc`, `--rot #b03a22`.
+- Die Grautöne sind ausschliesslich Schrift- und Linienfarben, nie Flächen.
+- Als einzige Fläche gibt es `--tint` (`rgba(132,184,25,0.07)`), ein sehr
+  schwaches Grün für Überfahr- und Auswahlzustände. Bewusst grün und nicht
+  grau, damit der weisse Eindruck erhalten bleibt.
+- Systemschriften, kein Webfont: nichts nachzuladen, nichts zu blockieren.
+  Auf Windows greift `Segoe UI Variable Text`.
+- Radius 10 px an Behältern, 8 px an Bedienelementen. Keine Schatten ausser
+  einem sehr weichen an der Detail-Tafel, damit sie über dem Inhalt liegt.
+- Status wird nicht als farbige Pille gezeigt, sondern als kleiner farbiger
+  Punkt vor dem Wort. In `geraet.html` sitzt derselbe Punkt in einer
+  Kontur-Pille (`.chip`).
+- Kennzahlen stehen in einem Raster mit 1 px Abstand über
+  Linienfarbe; dadurch entstehen die Trennlinien zwischen den Feldern ohne
+  zusätzliche Rahmen.
+
+**Navigation:** die Verwaltung hat *keine* Seitenleiste. Oben steht eine
+weisse Kopfzeile mit Logo, Produktname und Konto, darunter eine Reiterzeile
+(Dashboard, Geräte, Etiketten). Der aktive Reiter ist mit einer 2 px starken
+grünen Linie unterstrichen. Die Kopfzeile klebt beim Scrollen oben
+(`position: sticky`).
+
+**Logo und Favicon** kommen direkt von der Campus-Website und liegen nicht
+im Projekt:
+
+```
+Logo:    https://www.campus-sursee.ch/wp-content/themes/campus-sursee/
+         assets/images/Campus_Sursee_Hauptlogo_RGB.svg
+Favicon: https://www.campus-sursee.ch/wp-content/uploads/2023/12/
+         campus-sursee-favicon.webp
+```
+
+So folgt die Anwendung dem Corporate Design automatisch. Der Preis: der
+Host muss in der CSP unter `img-src` stehen (Abschnitt 5.4), und ohne
+Internetverbindung bleibt an dieser Stelle eine Lücke. Weil das Logo als
+`<img>` und nicht mehr als Inline-SVG eingebunden ist, nimmt es keine
+Textfarbe mehr an; es ist schwarz mit grünem Punkt und braucht darum einen
+hellen Grund, was hier ohnehin überall gegeben ist.
+
+Kein Framework, kein Tailwind, kein Icon-Paket. Die wenigen Symbole (Lupe,
+Pfeile, Kreuz, Mail, Telefon) sind handgeschriebene SVG-Pfade mit `fill:
+none` und `stroke-width: 1.5` bis `1.7`, passend zur Linienführung.
+
+**Sprache und Zeichensatz:** die Anwendung ist eine Schweizer Anwendung. Sie
+kommt ohne Eszett aus (in der Schweiz wird durchwegs «ss» geschrieben) und
+ohne Geviert- oder Halbgeviertstrich, weder im Text noch im Quelltext. Wo im
+Deutschen ein Gedankenstrich stünde, steht ein Komma, ein Doppelpunkt, ein
+Strichpunkt oder eine Klammer. Beides gilt für den ganzen Ordner, auch für
+diese Dokumentation.
+
+Ansprechverhalten: die Reiterzeile lässt sich auf schmalen Bildschirmen
+waagrecht schieben, unter 720 px verschwinden Kontoname und Adresse aus der
+Kopfzeile, unter 480 px zusätzlich der Produktname. `geraet.html` ist von
 Grund auf für das Handy gebaut.
 
 ---
@@ -636,11 +686,11 @@ Grund auf für das Handy gebaut.
 
 | Grenze | Auswirkung | Wann sie stört |
 |---|---|---|
-| Alle Geräte werden bei jedem Laden geholt | ca. 1–2 s bei 1000 Geräten | ab ca. 5000 Geräten spürbar; dann Auslagern in einen Suchindex prüfen |
+| Alle Geräte werden bei jedem Laden geholt | ca. 1 bis 2 s bei 1000 Geräten | ab ca. 5000 Geräten spürbar; dann Auslagern in einen Suchindex prüfen |
 | `'unsafe-inline'` in der CSP | siehe 5.4 | wenn eine externe Prüfung es beanstandet |
 | Kein gleichzeitiges Bearbeiten | zwei Personen am selben Gerät: die letzte Speicherung gewinnt | selten, bei zwei bis drei Personen im ICT-Team praktisch nie |
 | Verlauf wird nie aufgeräumt | Liste wächst | in Jahren; SharePoint verträgt das |
-| Keine Bilder / Anhänge | | wenn Fotos gewünscht sind — SharePoint-Anhänge wären der Weg |
+| Keine Bilder / Anhänge | | wenn Fotos gewünscht sind; SharePoint-Anhänge wären der Weg |
 | Nur Deutsch | | |
 
 ---
@@ -654,7 +704,7 @@ automatisch.
 
 **Neue Spalte**
 1. In `graph.js` bei `SPALTEN_GERAETE` die Definition ergänzen.
-2. `setup.html` aufrufen und «Listen anlegen» klicken — die Spalte wird in
+2. `setup.html` aufrufen und «Listen anlegen» klicken, die Spalte wird in
    SharePoint ergänzt, bestehende Daten bleiben.
 3. In `graph.js` in `ausSp()` und `felderAusGeraet()` eintragen.
 4. In `admin.html` in `FELD_BEZEICHNUNG` und ein Eingabefeld `f-<name>` im
@@ -664,10 +714,10 @@ automatisch.
 **MSAL oder qrcode-generator aktualisieren**
 Version im `<script>`-Tag ändern **und** die Prüfsumme neu berechnen
 (Befehl in Abschnitt 2.4). Eine falsche Prüfsumme führt dazu, dass der
-Browser die Datei stillschweigend nicht lädt — die Seite bleibt dann leer.
+Browser die Datei stillschweigend nicht lädt; die Seite bleibt dann leer.
 
 **Kontaktangaben ändern**
-Die **Adresse** steht in `konfig.js` unter `servicedeskMail` — von dort
+Die **Adresse** steht in `konfig.js` unter `servicedeskMail`, von dort
 liest sie `etikette.html` (Aufdruck) und `geraet.html` (Betreffzeile).
 Zusätzlich steht sie fest im HTML von `index.html` und `geraet.html`, damit
 beide Seiten auch ohne JavaScript vollständig sind. Beim Ändern also **drei
@@ -675,7 +725,7 @@ Stellen** anpassen.
 
 Die **Telefonnummer** steht bewusst *nur* im HTML von `index.html` und
 `geraet.html` und nicht in `konfig.js`: `index.html` lädt `konfig.js` gar
-nicht, ein Eintrag dort wäre also nur für eine der beiden Seiten nutzbar —
+nicht, ein Eintrag dort wäre also nur für eine der beiden Seiten nutzbar,
 und ein Wert, den kein Code liest, wird beim Ändern zuverlässig übersehen.
 
 **Domain ändern**

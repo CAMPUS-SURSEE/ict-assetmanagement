@@ -4,7 +4,9 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <meta name="robots" content="noindex">
-<title>Etiketten — ICT Lager</title>
+<title>Etiketten · ICT Lager</title>
+<link rel="icon" type="image/webp"
+      href="https://www.campus-sursee.ch/wp-content/uploads/2023/12/campus-sursee-favicon.webp">
 
 <!-- Die Seitengrösse für den Druck lässt sich in CSS nicht über eine Klasse
      umschalten. Darum zwei Regelsätze, von denen jeweils einer über das
@@ -17,25 +19,34 @@
 </style>
 
 <style>
+  /* Gestaltung: reines Weiss, Struktur ausschliesslich ueber Haarlinien,
+     Abstaende und Typografie. Keine Flaechen, keine Schatten, keine
+     Grautoene als Hintergrund. Farbe kommt nur vom Akzent. */
   :root {
-    --akzent: #84B819;
-    --text:   #111111;
-    --grau:   #6b6d68;
-    --grund:  #f5f6f4;
-    --karte:  #ffffff;
-    --linie:  #e4e5e1;
-    --radius: 10px;
+    --akzent:     #84B819;
+    --akzent-dkl: #6d9a12;
+    --text:       #101208;
+    --text-2:     #5f6359;
+    --text-3:     #8d9187;
+    --linie:      #e7e8e3;
+    --linie-2:    #d2d4cc;
+    --tint:       rgba(132, 184, 25, 0.07);
+    --rot:        #b03a22;
   }
   * { box-sizing: border-box; margin: 0; padding: 0; }
   /* hidden muss staerker sein als jede display-Regel weiter unten,
      sonst bleiben ausgeblendete Knoepfe und Pillen sichtbar. */
   [hidden] { display: none !important; }
+  html { -webkit-text-size-adjust: 100%; background: #fff; }
   body {
-    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
-    background: var(--grund);
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI Variable Text",
+                 "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+    background: #fff;
     color: var(--text);
-    line-height: 1.5;
+    line-height: 1.55;
+    -webkit-font-smoothing: antialiased;
   }
+  button:focus-visible, a:focus-visible { outline: 2px solid var(--akzent); outline-offset: 2px; }
 
   /* ---------- Bedienleiste (wird nie gedruckt) ---------- */
 
@@ -47,47 +58,57 @@
     align-items: center;
     flex-wrap: wrap;
     gap: 10px 18px;
-    padding: 14px 22px;
-    background: #1a1a1a;
-    color: #f2f3f0;
+    padding: 14px 26px;
+    background: #fff;
+    border-bottom: 1px solid var(--linie);
   }
-  .leiste .titel { font-size: 0.85rem; font-weight: 600; letter-spacing: 0.06em; }
-  .leiste .anzahl { font-size: 0.82rem; color: #9a9c97; }
-  .leiste .rechts { margin-left: auto; display: flex; align-items: center; gap: 10px; flex-wrap: wrap; }
+  .leiste .titel { font-size: 0.9rem; font-weight: 600; letter-spacing: -0.01em; }
+  .leiste .anzahl { font-size: 0.82rem; color: var(--text-3); }
+  .leiste .rechts { margin-left: auto; display: flex; align-items: center; gap: 8px; flex-wrap: wrap; }
 
-  .schalter { display: flex; border: 1px solid #3a3a3a; border-radius: 8px; overflow: hidden; }
+  .schalter { display: flex; border: 1px solid var(--linie-2); border-radius: 8px; overflow: hidden; }
   .schalter button {
     font: inherit;
     font-size: 0.82rem;
-    padding: 7px 14px;
-    background: transparent;
-    color: #c9cbc5;
+    font-weight: 500;
+    padding: 8px 14px;
+    background: #fff;
+    color: var(--text-2);
     border: 0;
     cursor: pointer;
   }
+  .schalter button + button { border-left: 1px solid var(--linie-2); }
+  .schalter button:hover { color: var(--text); background: var(--tint); }
   .schalter button[aria-pressed="true"] { background: var(--akzent); color: #17210a; font-weight: 600; }
 
   .knopf {
     font: inherit;
     font-size: 0.85rem;
     font-weight: 500;
-    padding: 8px 16px;
+    padding: 8px 15px;
     border-radius: 8px;
-    border: 1px solid #3a3a3a;
-    background: transparent;
-    color: #f2f3f0;
+    border: 1px solid var(--linie-2);
+    background: #fff;
+    color: var(--text);
     cursor: pointer;
     text-decoration: none;
+    display: inline-flex;
+    align-items: center;
+    white-space: nowrap;
+    transition: border-color 0.15s ease, background 0.15s ease;
   }
+  .knopf:hover { border-color: #b7bab0; background: var(--tint); }
   .knopf.haupt { background: var(--akzent); border-color: var(--akzent); color: #17210a; font-weight: 600; }
-  .knopf:disabled { opacity: 0.45; cursor: default; }
+  .knopf.haupt:hover { background: var(--akzent-dkl); border-color: var(--akzent-dkl); }
+  .knopf:disabled { opacity: 0.4; cursor: default; }
+  .knopf:disabled:hover { border-color: var(--linie-2); background: #fff; }
 
-  .meldung { padding: 22px; color: var(--grau); font-size: 0.95rem; }
-  .meldung.fehler { color: #a13b1e; }
+  .meldung { padding: 20px 26px 0; color: var(--text-2); font-size: 0.92rem; }
+  .meldung.fehler { color: var(--rot); }
 
   /* ---------- Etiketten am Bildschirm ---------- */
 
-  .blatt { padding: 22px; }
+  .blatt { padding: 26px; }
   .etiketten { display: flex; flex-wrap: wrap; gap: 8mm; }
 
   .etikette {
@@ -108,7 +129,9 @@
   .etikette .qr { flex: none; width: 23mm; height: 23mm; }
   .etikette .qr svg { width: 100%; height: 100%; display: block; }
   .etikette .rechts { flex: 1; min-width: 0; display: flex; flex-direction: column; gap: 1.5mm; }
-  .etikette .logo { width: 32mm; height: auto; display: block; color: #111; }
+  /* 62mm minus 6mm Innenabstand, 23mm QR-Code und 3mm Abstand lassen 30mm
+     fuer die rechte Spalte. 27mm halten das Logo sicher innerhalb. */
+  .etikette .logo { width: 27mm; height: auto; display: block; }
   .etikette .mail {
     font-size: 6.6pt;
     letter-spacing: 0.01em;
@@ -120,7 +143,7 @@
 
   @media print {
     body { background: #fff; }
-    /* Bedienleiste und JEDE Meldung — auch die Fehlermeldung — bleiben aussen
+    /* Bedienleiste und JEDE Meldung, auch die Fehlermeldung, bleiben aussen
        vor. Eine mitgedruckte Meldung würde die erste Etikette verschieben. */
     .leiste, .meldung { display: none !important; }
     .blatt { padding: 0; }
@@ -180,12 +203,12 @@
 "use strict";
 
 /* ====================================================================
-   etikette.html — Druckansicht der Geräteetiketten.
+   etikette.html, Druckansicht der Geräteetiketten.
 
    Aufruf: etikette.html?ids=12,13,14
 
    Auf der Etikette steht bewusst NUR der QR-Code, das Logo und die Adresse
-   des Servicedesks. Kein Gerätename, keine Nummer, keine Seriennummer — eine
+   des Servicedesks. Kein Gerätename, keine Nummer, keine Seriennummer: eine
    Etikette klebt an einem Gerät, das herumgereicht wird, und soll nichts
    verraten. Wer wissen will, um welches Gerät es sich handelt, scannt den
    Code und landet auf der öffentlichen Seite.
@@ -199,6 +222,13 @@
    ==================================================================== */
 
 const el = id => document.getElementById(id);
+
+/* Offizielles Hauptlogo von campus-sursee.ch, direkt ab der Website
+   eingebunden. So bleibt die Etikette automatisch auf dem Stand des
+   Corporate Designs. */
+const LOGO_URL = "https://www.campus-sursee.ch/wp-content/themes/campus-sursee/"
+  + "assets/images/Campus_Sursee_Hauptlogo_RGB.svg";
+
 
 /* ---------- Druckformat umschalten ---------- */
 
@@ -220,17 +250,6 @@ el("btn-drucken").addEventListener("click", () => window.print());
   let gemerkt = null;
   try { gemerkt = localStorage.getItem("ictlager-etikettenmodus"); } catch (e) { /* egal */ }
   modusSetzen(gemerkt === "einzeln" ? "einzeln" : "bogen");
-})();
-
-
-/* ---------- Logo ---------- */
-
-/* Wird für jede Etikette einmal geklont, statt den langen Pfad mehrfach in
-   das Dokument zu schreiben. */
-const LOGO_VORLAGE = (function () {
-  const h = document.createElement("div");
-  h.innerHTML = '<svg class="logo" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 710.4 168.6" role="img" aria-label="Campus Sursee"><path fill="currentColor" d="M37.4 12c10.9 0 20.2 5.9 23.8 15.1l.4 1.1 11.7-5.3-.4-1C67.4 8.4 53.8 0 37.3 0 20 0 4.7 10.3.1 25.1L0 55.2l.1.3C4.7 70.3 20 80.6 37.3 80.6c16.4 0 30.1-8.4 35.6-21.9l.4-1-11.7-5.3-.4 1.1c-3.6 9.2-12.9 15.1-23.8 15.1-11.4 0-21.8-7.1-24.5-16.6V28.6C15.5 19.1 26 12 37.4 12zM307.4.8H275v78h12.8V51.5h19.6c11.7 0 22.6-6.8 25.8-16.1l.1-18.3-.1-.4C330 7.6 319.1.8 307.4.8zm12.9 19.7V32c-2 4.6-7.6 7.8-13.7 7.8h-18.8V12.7h18.8c6.1 0 11.7 3.2 13.7 7.8zM400.9 59.4c-2.1 4.6-8.6 9.1-18.5 9.1-9.7 0-16.3-4.5-18.5-9.1V.8h-12.8v62.6l.1.2c4.2 10 16.7 16.8 31.2 16.8 14.4 0 27-6.7 31.3-16.8l.1-.2V.8h-12.9v58.6zM212.4 49.9 187.5.8h-16.9v78.1H183V18.5l24.7 48.4h9.3l24.7-48.4v60.4h12.5V.8h-17zM461.5 80.5c13.3 0 24.9-6.5 29-16.1l.1-.2V50.5l-.1-.2c-2.6-6.3-8.5-11.4-16.2-13.9-4.5-1.6-8.1-2.1-11.6-2.6-2.9-.4-5.7-.8-8.8-1.8-4.3-1.5-7-3.5-8.4-6.5v-5.6c2.3-4.9 8.3-8.1 15.5-8.1 8.4 0 15.3 4.3 18.3 11.4l.5 1.1 11.4-5.4-.4-1C486.6 7 475 0 461.2 0c-12.9 0-24.3 6.5-28.3 16.2l-.1.2v12.4l.1.4c2.4 6.2 8.1 11.1 16.1 13.8 4.4 1.5 7.9 2 11.2 2.4 3 .4 5.9.8 9.1 1.9 4.2 1.4 6.9 3.6 8.4 6.7v6.4c-2.3 5-8.6 8.2-16.2 8.2-8.8 0-16-4.4-19.2-11.9l-.5-1.1-11.1 5.8.4.9c4.2 11 16.4 18.2 30.4 18.2zM112.8.8 82.8 75v3.8h12l7.3-18.6h36.2l7.3 18.6h12.2v-3.9L127.8.8h-15zm20.9 47.7h-26.9l13.5-34 13.4 34zM710.4 101V89H656v78h54.4v-12h-41.6v-21.5h38.4v-11.9h-38.4V101zM303.7 99.9c8.4 0 15.3 4.3 18.3 11.4l.5 1.1 11.4-5.4-.4-1c-4.2-10.9-15.9-17.9-29.6-17.9-12.9 0-24.3 6.5-28.3 16.2l-.1.2v12.4l.1.4c2.4 6.2 8.1 11.1 16.1 13.8 4.4 1.5 7.9 2 11.2 2.4 3 .4 5.9.8 9.1 1.9 4.2 1.4 6.9 3.6 8.4 6.7v6.4c-2.3 5-8.6 8.2-16.2 8.2-8.8 0-16-4.4-19.2-11.8l-.5-1.1-11.1 5.8.4 1c4.2 10.7 16.5 17.9 30.5 17.9 13.3 0 24.9-6.5 29-16.1l.1-.2v-13.7l-.1-.2c-2.6-6.3-8.5-11.4-16.2-13.9-4.5-1.6-8.1-2.1-11.6-2.6-2.9-.4-5.7-.8-8.8-1.8-4.3-1.5-7-3.5-8.4-6.5v-5.6c2.1-4.8 8.2-8 15.4-8zM537.5 99.9c8.4 0 15.3 4.3 18.3 11.4l.5 1.1 11.4-5.4-.4-1c-4.2-10.9-15.8-17.9-29.6-17.9-12.9 0-24.3 6.5-28.3 16.2l-.1.2v12.4l.1.4c2.4 6.2 8.1 11.1 16.1 13.8 4.4 1.5 7.9 2 11.2 2.4 3 .4 5.9.8 9.1 1.9 4.2 1.4 6.9 3.6 8.4 6.7v6.4c-2.3 5-8.6 8.2-16.2 8.2-8.8 0-16-4.4-19.2-11.8l-.5-1.1-11.1 5.8.4.9c4.2 10.7 16.5 17.9 30.5 17.9 13.3 0 24.9-6.5 29-16.1l.1-.2v-13.7l-.1-.2c-2.6-6.3-8.5-11.4-16.2-13.9-4.5-1.6-8.1-2.1-11.6-2.6-2.9-.4-5.7-.8-8.8-1.8-4.3-1.5-7-3.5-8.4-6.5v-5.6c2.1-4.7 8.1-7.9 15.4-7.9zM491.3 121.3l.1-15.9-.1-.4c-3.2-9.3-14-16-25.7-16h-33.8v78h12.8v-29.6h16.8L481 167h12.4v-4l-18.3-27.2c7.8-2.6 13.9-8 16.2-14.5zm-12.8-12.7v9.4c-2 4.6-7.6 7.8-13.7 7.8h-20.2v-25h20.2c6.2 0 11.8 3.2 13.7 7.8zM583.6 167h54.5v-12h-41.7v-21.5h38.4v-11.9h-38.4V101h41.7V89h-54.5zM400.8 147.5c-2.1 4.6-8.6 9.1-18.5 9.1-9.7 0-16.3-4.5-18.5-9.1V89H351v62.6l.1.2c4.2 10 16.7 16.8 31.2 16.8 14.4 0 27-6.7 31.3-16.8l.1-.2V88.9h-12.9v58.6z"/><path fill="#84B819" d="M511.2 83.8c0-6.3-5.1-11.4-11.4-11.4-6.3 0-11.4 5.1-11.4 11.4s5.1 11.4 11.4 11.4c6.3-.1 11.4-5.1 11.4-11.4z"/></svg>';
-  return h.firstChild;
 })();
 
 
@@ -257,7 +276,14 @@ function etiketteBauen(id) {
 
   const rechts = document.createElement("div");
   rechts.className = "rechts";
-  rechts.appendChild(LOGO_VORLAGE.cloneNode(true));
+
+  const logo = document.createElement("img");
+  logo.className = "logo";
+  logo.src = LOGO_URL;
+  logo.alt = "Campus Sursee";
+  logo.width = 710;
+  logo.height = 169;
+  rechts.appendChild(logo);
 
   const mail = document.createElement("div");
   mail.className = "mail";

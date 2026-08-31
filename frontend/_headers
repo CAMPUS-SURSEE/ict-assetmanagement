@@ -1,4 +1,4 @@
-# _headers — Kopfzeilen für Netlify.
+# _headers, Kopfzeilen für Netlify.
 #
 # Die Content-Security-Policy ist bewusst eng: erlaubt ist nur, was die
 # Anwendung wirklich braucht. Alles andere blockiert der Browser, auch wenn
@@ -11,15 +11,20 @@
 #                            Muster: eine Seite = eine Datei). Die beiden
 #                            CDN-Dateien sind zusätzlich mit einer
 #                            integrity-Prüfsumme gepinnt.
+#   img-src                  eigene Dateien, data: für das Auswahlpfeilchen
+#                            in den Auswahlfeldern, und www.campus-sursee.ch
+#                            für Logo und Favicon. Beide werden bewusst direkt
+#                            ab der Campus-Website geladen und nicht kopiert,
+#                            damit sie automatisch dem Corporate Design folgen.
 #   connect-src              Microsoft Graph, Entra ID und der Power-Platform-
 #                            Host des anonymen Flows für geraet.html.
-#   frame-src                login.microsoftonline.com — MSAL erneuert Token
+#   frame-src                login.microsoftonline.com, MSAL erneuert Token
 #                            still über ein verstecktes iframe.
 #   frame-ancestors 'none'   die Seiten dürfen nirgends eingebettet werden.
 #   form-action 'none'       es gibt keine abschickenden Formulare.
 
 /*
-  Content-Security-Policy: default-src 'none'; script-src 'self' 'unsafe-inline' https://cdn.jsdelivr.net; style-src 'self' 'unsafe-inline'; img-src 'self' data:; font-src 'self'; connect-src 'self' https://graph.microsoft.com https://login.microsoftonline.com https://*.environment.api.powerplatform.com; frame-src https://login.microsoftonline.com; form-action 'none'; base-uri 'none'; frame-ancestors 'none'; object-src 'none'
+  Content-Security-Policy: default-src 'none'; script-src 'self' 'unsafe-inline' https://cdn.jsdelivr.net; style-src 'self' 'unsafe-inline'; img-src 'self' data: https://www.campus-sursee.ch; font-src 'self'; connect-src 'self' https://graph.microsoft.com https://login.microsoftonline.com https://*.environment.api.powerplatform.com; frame-src https://login.microsoftonline.com; form-action 'none'; base-uri 'none'; frame-ancestors 'none'; object-src 'none'
   X-Content-Type-Options: nosniff
   X-Frame-Options: DENY
   Referrer-Policy: strict-origin-when-cross-origin
@@ -40,6 +45,6 @@
   Cache-Control: no-store
 
 # konfig.js enthält keine Geheimnisse, soll aber nicht zwischengespeichert
-# werden — sonst wirken Änderungen erst nach Tagen.
+# werden, sonst wirken Änderungen erst nach Tagen.
 /konfig.js
   Cache-Control: no-store
