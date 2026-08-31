@@ -18,7 +18,7 @@ const KONFIG = {
   // Anwendungs-ID (Client-ID) der App-Registrierung «ICT Lager Verwaltung».
   // MUSS EINGETRAGEN WERDEN: neue SPA-App-Registrierung anlegen,
   // siehe anleitung/01_Einrichtung.md, Schritt A.
-  clientId: "HIER_CLIENT_ID_EINTRAGEN",
+  clientId: "58384569-7580-4617-ad5c-2bf5a81d397d",
 
 
   /* ---- SharePoint ------------------------------------------------------ */
@@ -30,10 +30,10 @@ const KONFIG = {
 
   /* Listen. Erlaubt ist entweder der Anzeigename («Geraete») oder die
      Listen-GUID. Die GUID ist stabiler — sie ändert sich nicht, wenn jemand
-     die Liste in SharePoint umbenennt. setup.html zeigt die GUIDs nach dem
-     Anlegen an; danach hier eintragen. */
-  listeGeraete: "Geraete",   // z.B. "8c0a1f3e-1234-4c8b-9a1e-abcdef012345"
-  listeVerlauf: "Verlauf",   // z.B. "9d1b2e4f-5678-4d9c-8b2f-bcdef0123456"
+     die Liste in SharePoint umbenennt. Beide Listen wurden am 31.08.2026
+     angelegt; hier stehen ihre GUIDs. */
+  listeGeraete: "9fb53d45-26c9-4d72-9297-696231048d69",   // Liste «Geraete»
+  listeVerlauf: "a63f4b50-3a2d-43b6-8878-a271667fa351",   // Liste «Verlauf»
 
 
   /* ---- Power Automate -------------------------------------------------- */
@@ -41,9 +41,10 @@ const KONFIG = {
   /* Anonymer HTTP-Trigger-Flow «API Geraet laden». Liefert für eine Geräte-ID
      ausschliesslich die öffentlichen Felder. Wird von geraet.html ohne
      Anmeldung aufgerufen (GET, Query-Parameter &id=...).
-     MUSS EINGETRAGEN WERDEN: URL aus dem Flow kopieren,
-     siehe anleitung/01_Einrichtung.md, Schritt C. */
-  FLOW_GERAET_URL: "HIER_FLOW_URL_EINTRAGEN",
+     Eingerichtet am 31.08.2026, siehe anleitung/01_Einrichtung.md, Schritt C.
+     Die Definition des Flows liegt als Referenz in
+     code/flow_api-geraet-laden.json. */
+  FLOW_GERAET_URL: "https://default2553fb745dcc40728bb5399d18f72a.f9.environment.api.powerplatform.com:443/powerautomate/automations/direct/cu/26/workflows/9c3d2df7ff6f4af3b605ffc4ec9fdb6a/triggers/manual/paths/invoke?api-version=1&sp=%2Ftriggers%2Fmanual%2Frun&sv=1.0&sig=8wyU7l0d6QSfSvwuSA8XMl_xo-gx9NGc0FMJbA3sgxI",
 
 
   /* ---- Adressen -------------------------------------------------------- */

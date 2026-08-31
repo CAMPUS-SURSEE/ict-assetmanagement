@@ -1,0 +1,145 @@
+{
+    "_hinweis":  "Referenzkopie der Definition des Power-Automate-Flows «API Geraet laden». Enthaelt bewusst KEINE Trigger-URL und keine Signatur (sig). Angelegt am 31.08.2026 ueber die Flow-API, Umgebung Default-2553fb74-5dcc-4072-8bb5-399d18f72af9.",
+    "displayName":  "API Geraet laden",
+    "state":  "Started",
+    "definition":  {
+                       "$schema":  "https://schema.management.azure.com/providers/Microsoft.Logic/schemas/2016-06-01/workflowdefinition.json#",
+                       "contentVersion":  "1.0.0.0",
+                       "parameters":  {
+                                          "$connections":  {
+                                                               "defaultValue":  {
+
+                                                                                },
+                                                               "type":  "Object"
+                                                           },
+                                          "$authentication":  {
+                                                                  "defaultValue":  {
+
+                                                                                   },
+                                                                  "type":  "SecureObject"
+                                                              }
+                                      },
+                       "triggers":  {
+                                        "manual":  {
+                                                       "metadata":  {
+
+                                                                    },
+                                                       "type":  "Request",
+                                                       "kind":  "Http",
+                                                       "inputs":  {
+                                                                      "method":  "GET",
+                                                                      "schema":  {
+
+                                                                                 },
+                                                                      "triggerAuthenticationType":  "All"
+                                                                  }
+                                                   }
+                                    },
+                       "actions":  {
+                                       "Elemente_abrufen":  {
+                                                                "runAfter":  {
+
+                                                                             },
+                                                                "type":  "OpenApiConnection",
+                                                                "inputs":  {
+                                                                               "host":  {
+                                                                                            "apiId":  "/providers/Microsoft.PowerApps/apis/shared_sharepointonline",
+                                                                                            "connectionName":  "shared_sharepointonline",
+                                                                                            "operationId":  "GetItems"
+                                                                                        },
+                                                                               "parameters":  {
+                                                                                                  "dataset":  "https://campussursee.sharepoint.com/sites/mgmts-ict-s",
+                                                                                                  "table":  "9fb53d45-26c9-4d72-9297-696231048d69",
+                                                                                                  "$filter":  "ID eq @{int(coalesce(triggerOutputs()[\u0027queries\u0027][\u0027id\u0027], \u00270\u0027))}",
+                                                                                                  "$top":  1
+                                                                                              },
+                                                                               "authentication":  "@parameters(\u0027$authentication\u0027)"
+                                                                           }
+                                                            },
+                                       "Antwort":  {
+                                                       "runAfter":  {
+                                                                        "Elemente_abrufen":  [
+                                                                                                 "Succeeded"
+                                                                                             ]
+                                                                    },
+                                                       "type":  "Compose",
+                                                       "inputs":  "@addProperty(addProperty(addProperty(addProperty(addProperty(addProperty(json(\u0027{}\u0027), \u0027name\u0027, coalesce(first(outputs(\u0027Elemente_abrufen\u0027)?[\u0027body/value\u0027])?[\u0027Title\u0027], \u0027\u0027)), \u0027kategorie\u0027, coalesce(first(outputs(\u0027Elemente_abrufen\u0027)?[\u0027body/value\u0027])?[\u0027Kategorie\u0027]?[\u0027Value\u0027], \u0027\u0027)), \u0027status\u0027, coalesce(first(outputs(\u0027Elemente_abrufen\u0027)?[\u0027body/value\u0027])?[\u0027Status\u0027]?[\u0027Value\u0027], \u0027\u0027)), \u0027hersteller\u0027, coalesce(first(outputs(\u0027Elemente_abrufen\u0027)?[\u0027body/value\u0027])?[\u0027Hersteller\u0027], \u0027\u0027)), \u0027modell\u0027, coalesce(first(outputs(\u0027Elemente_abrufen\u0027)?[\u0027body/value\u0027])?[\u0027Modell\u0027], \u0027\u0027)), \u0027beschreibung\u0027, coalesce(first(outputs(\u0027Elemente_abrufen\u0027)?[\u0027body/value\u0027])?[\u0027BeschreibungOeffentlich\u0027], \u0027\u0027))"
+                                                   },
+                                       "Bedingung":  {
+                                                         "actions":  {
+                                                                         "Antwort_200":  {
+                                                                                             "runAfter":  {
+
+                                                                                                          },
+                                                                                             "type":  "Response",
+                                                                                             "kind":  "Http",
+                                                                                             "inputs":  {
+                                                                                                            "statusCode":  200,
+                                                                                                            "headers":  {
+                                                                                                                            "Content-Type":  "application/json",
+                                                                                                                            "Access-Control-Allow-Origin":  "*"
+                                                                                                                        },
+                                                                                                            "body":  "@outputs(\u0027Antwort\u0027)"
+                                                                                                        }
+                                                                                         }
+                                                                     },
+                                                         "runAfter":  {
+                                                                          "Antwort":  [
+                                                                                          "Succeeded"
+                                                                                      ]
+                                                                      },
+                                                         "else":  {
+                                                                      "actions":  {
+                                                                                      "Antwort_404":  {
+                                                                                                          "runAfter":  {
+
+                                                                                                                       },
+                                                                                                          "type":  "Response",
+                                                                                                          "kind":  "Http",
+                                                                                                          "inputs":  {
+                                                                                                                         "statusCode":  404,
+                                                                                                                         "headers":  {
+                                                                                                                                         "Content-Type":  "application/json",
+                                                                                                                                         "Access-Control-Allow-Origin":  "*"
+                                                                                                                                     },
+                                                                                                                         "body":  {
+                                                                                                                                      "ok":  false,
+                                                                                                                                      "fehler":  "Gerät nicht gefunden"
+                                                                                                                                  }
+                                                                                                                     }
+                                                                                                      }
+                                                                                  }
+                                                                  },
+                                                         "expression":  {
+                                                                            "greater":  [
+                                                                                            "@length(outputs(\u0027Elemente_abrufen\u0027)?[\u0027body/value\u0027])",
+                                                                                            0
+                                                                                        ]
+                                                                        },
+                                                         "type":  "If"
+                                                     },
+                                       "Antwort_404_Fehler":  {
+                                                                  "runAfter":  {
+                                                                                   "Bedingung":  [
+                                                                                                     "Failed",
+                                                                                                     "Skipped",
+                                                                                                     "TimedOut"
+                                                                                                 ]
+                                                                               },
+                                                                  "type":  "Response",
+                                                                  "kind":  "Http",
+                                                                  "inputs":  {
+                                                                                 "statusCode":  404,
+                                                                                 "headers":  {
+                                                                                                 "Content-Type":  "application/json",
+                                                                                                 "Access-Control-Allow-Origin":  "*"
+                                                                                             },
+                                                                                 "body":  {
+                                                                                              "ok":  false,
+                                                                                              "fehler":  "Gerät nicht gefunden"
+                                                                                          }
+                                                                             }
+                                                              }
+                                   }
+                   }
+}

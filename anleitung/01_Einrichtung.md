@@ -6,17 +6,29 @@ Anwendung unter `https://ictlager.campus-sursee.ch`.
 Reihenfolge einhalten — Schritt B braucht die Client-ID aus Schritt A,
 Schritt C braucht die Listen aus Schritt B.
 
-| Schritt | Was | Wer | Dauer |
-|---|---|---|---|
-| A | App-Registrierung in Entra ID | Globaler Administrator | ca. 20 Min. |
-| B | SharePoint-Listen anlegen | ICT, Besitzer der Site | ca. 5 Min. |
-| C | Power-Automate-Flow bauen | ICT | ca. 20 Min. |
-| D | Netlify-Deploy und Domain | ICT | ca. 15 Min. |
-| E | `frontend/konfig.js` fertig ausfüllen | ICT | ca. 5 Min. |
+| Schritt | Was | Wer | Dauer | Stand |
+|---|---|---|---|---|
+| A | App-Registrierung in Entra ID | Globaler Administrator | ca. 20 Min. | erledigt (Einstellungen bitte nachprüfen) |
+| B | SharePoint-Listen anlegen | ICT, Besitzer der Site | ca. 5 Min. | erledigt 31.08.2026 |
+| C | Power-Automate-Flow bauen | ICT | ca. 20 Min. | erledigt 31.08.2026 |
+| D | Netlify-Deploy und Domain | ICT | ca. 15 Min. | **offen** |
+| E | `frontend/konfig.js` fertig ausfüllen | ICT | ca. 5 Min. | erledigt 31.08.2026 |
 
 ---
 
 ## Schritt A — App-Registrierung in Entra ID
+
+> **Stand 31.08.2026: erledigt.** Die Registrierung besteht, die
+> Anwendungs-ID (Client-ID) lautet `58384569-7580-4617-ad5c-2bf5a81d397d`
+> und steht bereits in `frontend/konfig.js`.
+>
+> **Bitte trotzdem einmal nachprüfen** — die folgenden Einstellungen wurden
+> nicht überprüft, sie lassen sich nur im Portal einsehen:
+> A.2 Plattform *Einzelseitenanwendung (SPA)* mit allen sechs
+> Umleitungsadressen, A.3 die beiden delegierten Berechtigungen samt
+> Administratorzustimmung, A.4 *Zuweisung erforderlich = Ja* mit den
+> zugewiesenen Personen. Der Rest dieses Abschnitts bleibt als Referenz
+> stehen.
 
 Für die Anmeldung an den internen Seiten (`admin.html`, `etikette.html`,
 `setup.html`) braucht es eine eigene App-Registrierung. Die bestehende
@@ -122,6 +134,19 @@ clientId: "die-kopierte-anwendungs-id",
 
 ## Schritt B — SharePoint-Listen anlegen
 
+> **Stand 31.08.2026: erledigt.** Beide Listen wurden am 31.08.2026 über
+> Microsoft Graph angelegt (nicht über `setup.html`, das Ergebnis ist
+> dasselbe) — mit genau den unten beschriebenen Spalten:
+>
+> | Liste | GUID |
+> |---|---|
+> | `Geraete` | `9fb53d45-26c9-4d72-9297-696231048d69` |
+> | `Verlauf` | `a63f4b50-3a2d-43b6-8878-a271667fa351` |
+>
+> Beide GUIDs stehen bereits in `frontend/konfig.js`. Beide Listen sind
+> leer. `setup.html` bleibt trotzdem nützlich: es ergänzt später
+> hinzugekommene Spalten (siehe «Was der Betrieb später wissen muss»).
+
 Ziel-Site: <https://campussursee.sharepoint.com/sites/mgmts-ict-s>
 
 Das erledigt `setup.html` selbst. Voraussetzung: das angemeldete Konto darf
@@ -194,6 +219,38 @@ E-Mail-Adresse.
 ---
 
 ## Schritt C — Power-Automate-Flow «API Geraet laden»
+
+> **Stand 31.08.2026: erledigt — automatisiert eingerichtet.** Der Flow
+> wurde nicht von Hand im Designer gebaut, sondern über die Power-Automate-API
+> angelegt. Der ganze Abschnitt C bleibt als Referenz stehen: er beschreibt
+> genau, was im Flow steht, und ist die Anleitung für den Nachbau, falls der
+> Flow einmal verloren geht.
+>
+> | | |
+> |---|---|
+> | Umgebung | `Default-2553fb74-5dcc-4072-8bb5-399d18f72af9` («CAMPUS SURSEE (default)») |
+> | Flow-ID | `5552f8c7-e2de-49b6-a256-4c9649b1bc2c` |
+> | Zustand | eingeschaltet (*Started*) |
+> | Besitzer | `powerplatform@campus-sursee.ch` |
+> | SharePoint-Verbindung | die bestehende Verbindung auf `admin@CAMPUSSURSEE.onmicrosoft.com` |
+> | Trigger-URL | steht als `FLOW_GERAET_URL` in `frontend/konfig.js` |
+>
+> Die vollständige Definition liegt als Referenzkopie im Projekt unter
+> `code/flow_api-geraet-laden.json` (ohne Trigger-URL und ohne Signatur).
+>
+> Die fünf Prüffälle aus C.8 wurden am 31.08.2026 gegen ein Testgerät
+> durchgespielt und stimmen alle — auch der Sonderzeichenfall. Das Testgerät
+> wurde danach wieder gelöscht, die Liste `Geraete` ist leer.
+>
+> **Offener Punkt für den Betrieb:** Der Flow läuft auf der
+> SharePoint-Verbindung des Kontos `admin@CAMPUSSURSEE.onmicrosoft.com`, weil
+> das Dienstkonto `powerplatform@campus-sursee.ch` **keinen Zugriff auf die
+> Site `mgmts-ict-s`** hat. Ein Administratorkonto sollte auf Dauer nicht
+> Träger eines produktiven Flows sein. Empfohlen: `powerplatform@` der
+> Microsoft-365-Gruppe `ICT-S` als Mitglied hinzufügen und danach im Flow die
+> Verbindung der Aktion «Elemente abrufen» auf die Verbindung des
+> Dienstkontos umstellen (Flow öffnen → Aktion → Verbindung wechseln). Danach
+> die fünf Prüffälle aus C.8 einmal wiederholen.
 
 Dieser Flow ist die einzige Stelle, an der jemand **ohne Anmeldung** Daten
 aus SharePoint bekommt. Er ist deshalb bewusst eng gebaut: er gibt nur sechs
@@ -467,6 +524,11 @@ Der Host der Flow-URL steht in `frontend/_headers` unter `connect-src` als
 anderen Umgebung mit einem anderen Host, muss dieser Eintrag angepasst
 werden — sonst blockiert der Browser den Aufruf stillschweigend.
 
+> **Geprüft am 31.08.2026:** Der Host der erzeugten Trigger-URL lautet
+> `default2553fb745dcc40728bb5399d18f72a.f9.environment.api.powerplatform.com`
+> und ist vom bestehenden Platzhalter abgedeckt. `frontend/_headers` musste
+> nicht angepasst werden.
+
 ---
 
 ## Schritt D — Netlify und Domain
@@ -542,15 +604,20 @@ Push auf den verbundenen Zweig.
 
 ## Schritt E — `frontend/konfig.js` fertig ausfüllen
 
+> **Stand 31.08.2026: erledigt.** In `frontend/konfig.js` steht kein
+> Platzhalter mehr — `clientId`, `listeGeraete`, `listeVerlauf` und
+> `FLOW_GERAET_URL` sind eingetragen. Offen ist nur noch Schritt D
+> (Netlify und Domain).
+
 Am Schluss müssen in `frontend/konfig.js` alle Platzhalter ersetzt sein:
 
 ```js
 const KONFIG = {
   mandantId: "2553fb74-5dcc-4072-8bb5-399d18f72af9",   // steht bereits
-  clientId:  "…",                                       // aus Schritt A.1
+  clientId:  "58384569-7580-4617-ad5c-2bf5a81d397d",    // aus Schritt A.1
   sitePfad:  "campussursee.sharepoint.com:/sites/mgmts-ict-s",  // steht bereits
-  listeGeraete: "…",                                    // aus Schritt B
-  listeVerlauf: "…",                                    // aus Schritt B
+  listeGeraete: "9fb53d45-26c9-4d72-9297-696231048d69", // aus Schritt B
+  listeVerlauf: "a63f4b50-3a2d-43b6-8878-a271667fa351", // aus Schritt B
   FLOW_GERAET_URL: "https://…powerplatform.com/…&sig=…", // aus Schritt C.7
   BASIS_URL: "https://ictlager.campus-sursee.ch",       // steht bereits
   servicedeskMail: "servicedesk@campus-sursee.ch"       // steht bereits
