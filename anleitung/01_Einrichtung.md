@@ -1,71 +1,68 @@
-# Einrichtung ICT Lager Campus Sursee
+# Einrichtung
 
-Diese Anleitung führt einmal von oben nach unten durch. Danach läuft die
-Anwendung unter `https://ictlager.campus-sursee.ch`.
+Die einmalige Einrichtung von Entra ID, SharePoint, Power Automate und
+Netlify. Nur nötig beim Neuaufbau oder zum Nachprüfen, im Alltag braucht es
+diese Seite nicht.
 
-Reihenfolge einhalten: Schritt B braucht die Client-ID aus Schritt A,
-Schritt C braucht die Listen aus Schritt B.
+[← zurück zur Übersicht](../README.md)
 
-| Schritt | Was | Wer | Dauer | Stand |
-|---|---|---|---|---|
-| A | App-Registrierung in Entra ID | Globaler Administrator | ca. 20 Min. | erledigt (Einstellungen bitte nachprüfen) |
-| B | SharePoint-Listen anlegen | ICT, Besitzer der Site | ca. 5 Min. | erledigt 31.08.2026 |
-| C | Power-Automate-Flow bauen | ICT | ca. 20 Min. | erledigt 31.08.2026 |
-| D | Netlify-Deploy und Domain | ICT | ca. 15 Min. | **offen** |
-| E | `frontend/konfig.js` fertig ausfüllen | ICT | ca. 5 Min. | erledigt 31.08.2026 |
+---
+
+## Überblick
+
+Die Schritte bauen aufeinander auf und werden der Reihe nach erledigt.
+
+| Schritt | Was | Wer | Stand |
+|---|---|---|---|
+| [A](#schritt-a-app-registrierung-in-entra-id) | App-Registrierung in Entra ID | Globaler Administrator | ✅ erledigt, Einstellungen [nachprüfen](#nachprüfen) |
+| [B](#schritt-b-sharepoint-listen) | SharePoint-Listen anlegen | ICT, Besitzer der Site | ✅ erledigt 31.08.2026 |
+| [C](#schritt-c-power-automate-flow) | Power-Automate-Flow bauen | ICT | ✅ erledigt 31.08.2026 |
+| [D](#schritt-d-netlify-und-domain) | Netlify und Domain | ICT | ⏳ offen (Stand 31.08.2026) |
+| [E](#schritt-e-konfigjs-ausfüllen) | `frontend/konfig.js` ausfüllen | ICT | ✅ erledigt 31.08.2026 |
+
+Zum Schluss die [Abnahme](#abnahme) durchspielen.
+
+### Wichtige Werte auf einen Blick
+
+| Was | Wert |
+|---|---|
+| Mandant (Tenant) | `2553fb74-5dcc-4072-8bb5-399d18f72af9` |
+| App-Registrierung «ICT Lager Verwaltung» (Client-ID) | [`58384569-7580-4617-ad5c-2bf5a81d397d`](https://entra.microsoft.com/#view/Microsoft_AAD_RegisteredApps/ApplicationMenuBlade/~/Overview/appId/58384569-7580-4617-ad5c-2bf5a81d397d) |
+| SharePoint-Site | [mgmts-ict-s](https://campussursee.sharepoint.com/sites/mgmts-ict-s) |
+| Liste [«Geraete»](https://campussursee.sharepoint.com/sites/mgmts-ict-s/Lists/Geraete/AllItems.aspx) | `9fb53d45-26c9-4d72-9297-696231048d69` |
+| Liste [«Verlauf»](https://campussursee.sharepoint.com/sites/mgmts-ict-s/Lists/Verlauf/AllItems.aspx) | `a63f4b50-3a2d-43b6-8878-a271667fa351` |
+| Power-Automate-Umgebung | [Default-2553fb74-5dcc-4072-8bb5-399d18f72af9](https://make.powerautomate.com/environments/Default-2553fb74-5dcc-4072-8bb5-399d18f72af9/flows) («CAMPUS SURSEE (default)») |
+| Flow «API Geraet laden» | [`5552f8c7-e2de-49b6-a256-4c9649b1bc2c`](https://make.powerautomate.com/environments/Default-2553fb74-5dcc-4072-8bb5-399d18f72af9/flows/5552f8c7-e2de-49b6-a256-4c9649b1bc2c/details), Besitzer und SharePoint-Verbindung: `powerplatform@campus-sursee.ch` |
+| Öffentliche Adresse | <https://ictlager.campus-sursee.ch> |
+
+Alle Werte, die die Website braucht, stehen in
+[`frontend/konfig.js`](../frontend/konfig.js). Die Datei enthält keine
+Geheimnisse: Mandanten- und Client-ID sind bei solchen Anwendungen
+öffentlich, geschützt wird über die Anmeldung.
 
 ---
 
 ## Schritt A: App-Registrierung in Entra ID
 
-> **Stand 31.08.2026: erledigt.** Die Registrierung besteht, die
-> Anwendungs-ID (Client-ID) lautet `58384569-7580-4617-ad5c-2bf5a81d397d`
-> und steht bereits in `frontend/konfig.js`.
->
-> **Bitte trotzdem einmal nachprüfen:** die folgenden Einstellungen wurden
-> nicht überprüft, sie lassen sich nur im Portal einsehen:
-> A.2 Plattform *Einzelseitenanwendung (SPA)* mit allen sechs
-> Umleitungsadressen, A.3 die beiden delegierten Berechtigungen samt
-> Administratorzustimmung, A.4 *Zuweisung erforderlich = Ja* mit den
-> zugewiesenen Personen. Der Rest dieses Abschnitts bleibt als Referenz
-> stehen.
+Die Verwaltung (`admin.html`, `etikette.html`, `setup.html`) meldet sich
+über eine eigene App-Registrierung an. Die Registrierung der Menüwahl darf
+**nicht** wiederverwendet werden, dort sind Berechtigungen und
+Personenkreis andere.
 
-Für die Anmeldung an den internen Seiten (`admin.html`, `etikette.html`,
-`setup.html`) braucht es eine eigene App-Registrierung. Die bestehende
-Registrierung der Menüwahl darf **nicht** wiederverwendet werden: die
-Berechtigungen und der Personenkreis sind andere.
+In <https://entra.microsoft.com> unter **Identität → Anwendungen →
+App-Registrierungen → Neue Registrierung**:
 
-### A.1 Registrierung anlegen
+| Einstellung | Wert |
+|---|---|
+| Name | `ICT Lager Verwaltung` |
+| Unterstützte Kontotypen | Nur Konten in diesem Organisationsverzeichnis (Einzelmandant) |
+| Plattform | **Einzelseitenanwendung (SPA)**, nicht «Web» |
+| Umleitungs-URIs | alle sechs Adressen aus dem Kasten unten |
+| Implizite Genehmigung | beide Haken **leer** lassen |
+| Abmelde-URL | `https://ictlager.campus-sursee.ch/` |
+| API-Berechtigungen | Microsoft Graph, **delegiert**: `Sites.ReadWrite.All` und `User.Read`, danach **Administratorzustimmung erteilen** |
 
-1. <https://entra.microsoft.com> öffnen, mit einem Konto mit
-   Administratorrechten anmelden.
-2. **Identität → Anwendungen → App-Registrierungen → Neue Registrierung**
-3. Ausfüllen:
-   - **Name:** `ICT Lager Verwaltung`
-   - **Unterstützte Kontotypen:** *Nur Konten in diesem Organisationsverzeichnis
-     (Campus Sursee, Einzelmandant)*
-   - **Umleitungs-URI:** Plattform **Einzelseitenanwendung (SPA)** wählen,
-     nicht «Web»! Als Adresse eintragen:
-     `https://ictlager.campus-sursee.ch/admin.html`
-
-   > Die Plattform **muss** SPA sein. Nur dort erlaubt Entra den
-   > Authorization Code Flow mit PKCE ohne Geheimnis. Bei «Web» verlangt
-   > Entra ein Client Secret, das in einer rein statischen Seite nicht
-   > geheim bleiben könnte.
-
-4. **Registrieren** klicken.
-5. Auf der Übersichtsseite die **Anwendungs-ID (Client)** kopieren. Sie kommt
-   später in `frontend/konfig.js` unter `clientId`.
-   Die **Verzeichnis-ID (Mandant)** muss
-   `2553fb74-5dcc-4072-8bb5-399d18f72af9` lauten; sie steht bereits in
-   `frontend/konfig.js`.
-
-### A.2 Weitere Umleitungsadressen
-
-**Authentifizierung → Einzelseitenanwendung → URI hinzufügen.** Es braucht
-jede Seite einzeln, weil MSAL die Adresse ohne Abfragezeichenfolge meldet:
-
-```
+```text
 https://ictlager.campus-sursee.ch/admin.html
 https://ictlager.campus-sursee.ch/etikette.html
 https://ictlager.campus-sursee.ch/setup.html
@@ -74,262 +71,110 @@ http://localhost:8000/etikette.html
 http://localhost:8000/setup.html
 ```
 
-Die drei `localhost`-Adressen sind für lokale Tests mit `code\serve.ps1`
-(siehe README). Sie können nach der Einführung entfernt werden; solange die
-Anwendung weiterentwickelt wird, sind sie praktisch. `http://` ist bei
-`localhost` erlaubt, sonst nicht.
+Die drei `localhost`-Adressen dienen nur dem [lokalen Test](02_Betrieb.md#lokal-testen).
 
-Weiter unten auf derselben Seite:
+Danach unter **Unternehmensanwendungen** (nicht App-Registrierungen!) →
+`ICT Lager Verwaltung`:
 
-- **Implizite Genehmigung:** beide Haken (Zugriffstoken, ID-Token) **leer**
-  lassen. Der Code Flow mit PKCE braucht sie nicht, und sie wären eine
-  unnötige Schwächung.
-- **Abmelde-URL:** `https://ictlager.campus-sursee.ch/`
+1. **Eigenschaften → Zuweisung erforderlich? → Ja** → Speichern.
+2. **Benutzer und Gruppen** → die Mitarbeitenden der Informatik zuweisen,
+   am besten als Gruppe (z.B. `SG-ICT-Lager`).
 
-### A.3 Berechtigungen
+> [!IMPORTANT]
+> **«Zuweisung erforderlich = Ja» ist der eigentliche Zugriffsschutz.**
+> Ohne diese Einstellung kann sich jede Person von Campus Sursee an der
+> Verwaltung anmelden.
 
-**API-Berechtigungen → Berechtigung hinzufügen → Microsoft Graph →
-Delegierte Berechtigungen.** Genau diese zwei:
+<details>
+<summary><b>Warum so und nicht anders?</b></summary>
 
-| Berechtigung | Wofür |
+| Entscheid | Grund |
 |---|---|
-| `Sites.ReadWrite.All` | Lesen und Schreiben der Listen `Geraete` und `Verlauf` |
-| `User.Read` | Name der angemeldeten Person für die Verlauf-Spalte «Wer» |
+| Plattform SPA statt «Web» | Nur so geht die Anmeldung ohne Client Secret. Ein Secret bliebe in einer reinen HTML-Seite nicht geheim. |
+| Delegierte Berechtigungen | Das Token kann nur, was die angemeldete Person in SharePoint ohnehin darf. Anwendungsberechtigungen wären ein Generalschlüssel auf alle Sites. |
+| Administratorzustimmung | Sonst sieht jede Person beim ersten Aufruf einen Zustimmungsdialog, den sie je nach Einstellung nicht bestätigen darf. |
+| Jede Seite als eigene Umleitungs-URI | Die Anmeldebibliothek meldet die Adresse ohne `?…`, deshalb braucht es jede Seite einzeln. |
 
-**Anwendungsberechtigungen** («Application permissions») nicht verwenden.
-Delegiert heisst: das Token kann nur, was die angemeldete Person in
-SharePoint ohnehin darf. Eine Anwendungsberechtigung wäre ein
-Generalschlüssel auf sämtliche Sites des Mandanten.
+</details>
 
-Danach **«Administratorzustimmung für Campus Sursee erteilen»** klicken. Ohne
-diesen Klick sieht jede Person beim ersten Aufruf einen
-Zustimmungsdialog, und darf ihn je nach Mandanteneinstellung gar nicht
-bestätigen.
+### Nachprüfen
 
-### A.4 Zugriff auf zugewiesene Personen beschränken
+Die Registrierung besteht, einige Einstellungen lassen sich aber nur im
+Portal prüfen:
 
-Das ist der eigentliche Zugriffsschutz. Ohne diesen Schritt kann sich
-**jede** Person des Mandanten an der Verwaltung anmelden.
-
-1. **Identität → Anwendungen → Unternehmensanwendungen** (nicht
-   App-Registrierungen!) → `ICT Lager Verwaltung` suchen.
-2. **Eigenschaften → Zuweisung erforderlich? → Ja** → Speichern.
-3. **Benutzer und Gruppen → Benutzer/Gruppe hinzufügen** → die Mitarbeitenden
-   der Informatik zuweisen. Am besten eine Sicherheitsgruppe, z.B.
-   `SG-ICT-Lager`, dann muss die Liste hier nie wieder angefasst werden.
-
-Nicht zugewiesene Personen erhalten von Entra eine Fehlermeldung und kommen
-gar nie zur Anwendung zurück. Die Prüfung passiert also vor der Anwendung,
-nicht in ihr.
-
-### A.5 Client-ID eintragen
-
-In `frontend/konfig.js`:
-
-```js
-clientId: "die-kopierte-anwendungs-id",
-```
+- [ ] Plattform ist *Einzelseitenanwendung (SPA)* mit allen sechs Umleitungs-URIs
+- [ ] Beide delegierten Berechtigungen sind eingetragen, Administratorzustimmung ist erteilt
+- [ ] Unternehmensanwendung: *Zuweisung erforderlich = Ja*, die richtigen Personen sind zugewiesen
 
 ---
 
-## Schritt B: SharePoint-Listen anlegen
+## Schritt B: SharePoint-Listen
 
-> **Stand 31.08.2026: erledigt.** Beide Listen wurden am 31.08.2026 über
-> Microsoft Graph angelegt (nicht über `setup.html`, das Ergebnis ist
-> dasselbe), mit genau den unten beschriebenen Spalten:
->
-> | Liste | GUID |
-> |---|---|
-> | `Geraete` | `9fb53d45-26c9-4d72-9297-696231048d69` |
-> | `Verlauf` | `a63f4b50-3a2d-43b6-8878-a271667fa351` |
->
-> Beide GUIDs stehen bereits in `frontend/konfig.js`. Beide Listen sind
-> leer. `setup.html` bleibt trotzdem nützlich: es ergänzt später
-> hinzugekommene Spalten (siehe «Was der Betrieb später wissen muss»).
+Die Anwendung speichert alles in zwei Listen auf der Site
+[mgmts-ict-s](https://campussursee.sharepoint.com/sites/mgmts-ict-s):
 
-Ziel-Site: <https://campussursee.sharepoint.com/sites/mgmts-ict-s>
+| Liste | Inhalt |
+|---|---|
+| [`Geraete`](https://campussursee.sharepoint.com/sites/mgmts-ict-s/Lists/Geraete/AllItems.aspx) | ein Eintrag pro Gerät |
+| [`Verlauf`](https://campussursee.sharepoint.com/sites/mgmts-ict-s/Lists/Verlauf/AllItems.aspx) | die Chronik aller Änderungen |
 
-Das erledigt `setup.html` selbst. Voraussetzung: das angemeldete Konto darf
-auf dieser Site Listen anlegen (Website-Besitzer oder Mitglied mit
-Vollzugriff).
+Die Listen legt die Seite `setup.html` selbst an:
 
-1. `setup.html` öffnen, entweder bereits auf Netlify oder lokal über
-   `.\code\serve.ps1` unter <http://localhost:8000/setup.html>.
-2. Anmelden.
-3. **«Listen anlegen»** klicken. Das Protokoll zeigt jeden Schritt.
-4. Am Schluss erscheinen die beiden Listen-IDs. Diese in `frontend/konfig.js`
-   eintragen:
+1. `https://ictlager.campus-sursee.ch/setup.html` öffnen (oder
+   [lokal](02_Betrieb.md#lokal-testen)) und anmelden. Das Konto muss auf
+   der Site Listen anlegen dürfen.
+2. **«Listen anlegen»** klicken.
+3. Die angezeigten Listen-IDs in [`frontend/konfig.js`](../frontend/konfig.js)
+   unter `listeGeraete` und `listeVerlauf` eintragen.
 
-```js
-listeGeraete: "8c0a1f3e-…",
-listeVerlauf: "9d1b2e4f-…",
-```
+Der Vorgang lässt sich gefahrlos wiederholen: Bestehendes bleibt, nur
+Fehlendes wird ergänzt. So werden auch später neu definierte Spalten
+ausgerollt.
 
-Der Vorgang ist wiederholbar: bestehende Listen und Spalten werden nicht
-angefasst, es werden nur fehlende ergänzt. Ein zweiter Klick richtet keinen
-Schaden an.
-
-### Was angelegt wird
-
-**Liste `Geraete`**
-
-| Spalte | Typ | Bemerkung |
-|---|---|---|
-| `Title` | Text | Gerätename, Pflichtfeld |
-| `AssetNr` | Text | Inventarnummer |
-| `Kategorie` | Auswahl | PC, Notebook, Monitor, Drucker, Netzwerk, Mobile, Peripherie, Server, Sonstiges; Pflicht |
-| `Status` | Auswahl | Aktiv, Lager, Reparatur, Ausgemustert; Pflicht, Vorgabe *Lager* |
-| `Seriennummer` | Text | |
-| `Hersteller` | Text | |
-| `Modell` | Text | |
-| `IPAdresse` | Text | |
-| `MACAdresse` | Text | |
-| `Owner` | Text | Name oder E-Mail |
-| `Standort` | Text | |
-| `Anschaffungsdatum` | Datum (ohne Zeit) | |
-| `EndOfLife` | Datum (ohne Zeit) | |
-| `GarantieBis` | Datum (ohne Zeit) | |
-| `Preis` | Zahl, 2 Nachkommastellen | CHF |
-| `NotizenIntern` | Text, mehrzeilig | verlässt nie die Verwaltung |
-| `BeschreibungOeffentlich` | Text, mehrzeilig | erscheint auf der Geräteseite |
-
-**Liste `Verlauf`**
-
-| Spalte | Typ | Bemerkung |
-|---|---|---|
-| `Title` | Text | Aktion, z.B. «Erstellt», «Geändert», «Reparatur» |
-| `GeraetId` | Text | Item-ID des Geräts aus der Liste `Geraete` |
-| `Datum` | Datum mit Zeit | |
-| `Text` | Text, mehrzeilig | was passiert ist |
-| `Wer` | Text | wird aus dem angemeldeten Konto gefüllt |
-
-> **Warum keine Nachschlagespalte (Lookup) statt `GeraetId`?**
-> Eine Nachschlagespalte würde beim Löschen eines Geräts entweder das Löschen
-> blockieren oder die Verlaufseinträge mitreissen. Der Verlauf soll aber auch
-> dann bestehen bleiben, wenn ein Gerät ausgemustert und entfernt wird.
-
-### Hinweis zu «Owner»
-
-`Owner` ist bewusst eine Textspalte und keine Personenspalte. Eine
-Personenspalte gäbe über Graph ein verschachteltes Objekt zurück, das je nach
-Zustand des Kontos unterschiedlich aussieht, und liesse sich nicht mit einem
-einfachen Textfeld befüllen. Für eine Lagerverwaltung reicht Name oder
-E-Mail-Adresse.
+Alle Spalten und ihre Bedeutung stehen in der
+[Technischen Dokumentation, Datenmodell](03_Technische_Dokumentation.md#3-datenmodell).
 
 ---
 
-## Schritt C: Power-Automate-Flow «API Geraet laden»
+## Schritt C: Power-Automate-Flow
 
-> **Stand 31.08.2026: erledigt, automatisiert eingerichtet.** Der Flow
-> wurde nicht von Hand im Designer gebaut, sondern über die Power-Automate-API
-> angelegt. Der ganze Abschnitt C bleibt als Referenz stehen: er beschreibt
-> genau, was im Flow steht, und ist die Anleitung für den Nachbau, falls der
-> Flow einmal verloren geht.
->
-> | | |
-> |---|---|
-> | Umgebung | `Default-2553fb74-5dcc-4072-8bb5-399d18f72af9` («CAMPUS SURSEE (default)») |
-> | Flow-ID | `5552f8c7-e2de-49b6-a256-4c9649b1bc2c` |
-> | Zustand | eingeschaltet (*Started*) |
-> | Besitzer | `powerplatform@campus-sursee.ch` |
-> | SharePoint-Verbindung | die Verbindung des Dienstkontos `powerplatform@campus-sursee.ch` |
-> | Trigger-URL | steht als `FLOW_GERAET_URL` in `frontend/konfig.js` |
->
-> Die vollständige Definition liegt als Referenzkopie im Projekt unter
-> `code/flow_api-geraet-laden.json` (ohne Trigger-URL und ohne Signatur).
->
-> Die fünf Prüffälle aus C.8 wurden am 31.08.2026 gegen ein Testgerät
-> durchgespielt und stimmen alle, auch der Sonderzeichenfall. Das Testgerät
-> wurde danach wieder gelöscht, die Liste `Geraete` ist leer.
->
-> **Zur SharePoint-Verbindung:** Der Flow greift mit dem Dienstkonto
-> `powerplatform@campus-sursee.ch` auf die Site zu. Damit das geht, muss
-> dieses Konto Zugriff auf `mgmts-ict-s` haben, es wurde am 31.08.2026
-> hinzugefügt. **Wird dieser Zugriff je entzogen, hört der Flow auf zu
-> arbeiten** und `geraet.html` zeigt bei jedem QR-Code «Gerät nicht
-> gefunden». Beim Aufräumen von Berechtigungen daran denken.
->
-> Zwischenzeitlich lief der Flow auf einer Verbindung des Kontos
-> `admin@CAMPUSSURSEE.onmicrosoft.com`; diese wird nicht mehr gebraucht.
+Der Flow **«API Geraet laden»** liefert der öffentlichen Geräteseite die
+Daten. Er ist die **einzige** Stelle, an der jemand ohne Anmeldung etwas aus
+SharePoint bekommt, und gibt deshalb nur sechs Felder heraus: Name,
+Kategorie, Status, Hersteller, Modell und öffentliche Beschreibung.
 
-Dieser Flow ist die einzige Stelle, an der jemand **ohne Anmeldung** Daten
-aus SharePoint bekommt. Er ist deshalb bewusst eng gebaut: er gibt nur sechs
-Felder zurück, und diese sechs bereitet er von Hand auf. Es gibt keinen Pfad,
-über den ein internes Feld versehentlich mitgeht.
+Eine vollständige Sicherungskopie der Definition liegt in
+[`code/flow_api-geraet-laden.json`](../code/flow_api-geraet-laden.json)
+(ohne Trigger-URL und Signatur).
 
-Umgebung: Standardumgebung Campus Sursee.
-<https://make.powerautomate.com>
+### Aufbau
 
-### C.1 Flow anlegen
+In [Power Automate](https://make.powerautomate.com) → **Erstellen →
+Sofortiger Cloud-Flow**, Name `API Geraet laden`:
 
-1. **Erstellen → Sofortiger Cloud-Flow**
-2. Name: `API Geraet laden`
-3. Trigger: **«Wenn eine HTTP-Anforderung empfangen wird»**
-   (englisch: *When an HTTP request is received*) → **Erstellen**
+| # | Aktion | Einstellung |
+|---|---|---|
+| 1 | **Wenn eine HTTP-Anforderung empfangen wird** | Wer kann auslösen: **Jeder** · Methode: **GET** · kein Schema |
+| 2 | **SharePoint → Elemente abrufen**, Name `Elemente abrufen` | Site: `https://campussursee.sharepoint.com/sites/mgmts-ict-s` · Liste: `Geraete` · Anzahl: `1` · Filter: siehe unten |
+| 3 | **Datenvorgang → Verfassen**, Name `Antwort` | Ausdruck mit genau den sechs Feldern, siehe unten |
+| 4 | **Bedingung** | `length(outputs('Elemente_abrufen')?['body/value'])` ist grösser als `0` |
+| 4a | ↳ Ja: **Antwort**, Name `Antwort 200` | Status `200` · Text: nur `outputs('Antwort')`, sonst nichts |
+| 4b | ↳ Nein: **Antwort**, Name `Antwort 404` | Status `404` · Text: `{ "ok": false, "fehler": "Gerät nicht gefunden" }` |
+| 5 | **Antwort**, Name `Antwort 404 Fehler` (nach der Bedingung) | wie 4b · **Ausführen nach:** Bedingung *ist fehlgeschlagen*, *wurde übersprungen*, *Zeitüberschreitung*; *ist erfolgreich* **abwählen** |
 
-### C.2 Trigger einstellen
+Alle drei Antworten bekommen dieselben zwei Header:
+`Content-Type: application/json` und `Access-Control-Allow-Origin: *`.
 
-Im Trigger auf **«…» → Einstellungen** bzw. direkt im Trigger:
+**Filter in Schritt 2:**
 
-- **Wer kann auslösen / Who can trigger the flow:** `Jeder` (Anyone).
-  Das ist der anonyme Zugriff. Der Schutz liegt darin, dass der Flow nur
-  sechs harmlose Felder herausgibt.
-- **Methode / Method:** `GET`
-- **Anforderungstext-JSON-Schema:** leer lassen (bei GET gibt es keinen Body)
-
-Die Geräte-ID kommt als Abfrageparameter. In den Ausdrücken erreicht man sie
-mit:
-
-```
-triggerOutputs()['queries']['id']
-```
-
-### C.3 Aktion «Elemente abrufen»
-
-**Neuer Schritt → SharePoint → Elemente abrufen** (*Get items*)
-
-Die Aktion **umbenennen** in `Elemente abrufen` (falls sie anders heisst),
-die Ausdrücke weiter unten sprechen sie über diesen Namen an. Power Automate
-ersetzt Leerzeichen intern durch Unterstriche, deshalb steht in den
-Ausdrücken `outputs('Elemente_abrufen')`.
-
-| Feld | Wert |
-|---|---|
-| Websiteadresse | `https://campussursee.sharepoint.com/sites/mgmts-ict-s` |
-| Listenname | `Geraete` |
-| Filterabfrage (erweiterte Optionen) | siehe unten |
-| Anzahl der Elemente abrufen | `1` |
-
-**Filterabfrage:**
-
-```
+```text
 ID eq @{int(coalesce(triggerOutputs()['queries']['id'], '0'))}
 ```
 
-`ID` ist die eingebaute Spalte und immer indiziert, hier ist ein
-serverseitiger Filter also unbedenklich (anders als bei den selbst
-angelegten Spalten, siehe technische Dokumentation).
-`coalesce(…, '0')` fängt den Fall ab, dass gar keine `id` mitkommt.
+<details>
+<summary><b>Ausdruck für Schritt 3 «Antwort»</b> (als eine einzige Zeile einfügen)</summary>
 
-> **Wichtig:** `int('abc')` bricht ab. Ruft jemand die Adresse mit
-> `&id=abc` auf, scheitert diese Aktion. Damit daraus kein HTTP 502
-> («Bad Gateway») wird, bekommt der Flow in Schritt C.6 einen Fehlerzweig,
-> der genau in diesem Fall sauber ein 404 zurückgibt. Diesen Schritt bitte
-> nicht überspringen, sonst zeigt `geraet.html` bei einem vertippten
-> QR-Code eine unverständliche Meldung.
-
-### C.4 Antwort verfassen: Aktion «Verfassen»
-
-Jetzt kommt der sicherheitsrelevante Teil: hier wird festgelegt, welche
-sechs Felder nach draussen gehen.
-
-**Neuer Schritt → Datenvorgang → Verfassen** (*Compose*). Die Aktion
-**`Antwort`** nennen.
-
-In das einzige Feld der Aktion den **Ausdruck** (nicht dynamischen Inhalt)
-einsetzen:
-
-```
+```text
 addProperty(addProperty(addProperty(addProperty(addProperty(addProperty(json('{}'),
   'name',         coalesce(first(outputs('Elemente_abrufen')?['body/value'])?['Title'], '')),
   'kategorie',    coalesce(first(outputs('Elemente_abrufen')?['body/value'])?['Kategorie']?['Value'], '')),
@@ -339,293 +184,106 @@ addProperty(addProperty(addProperty(addProperty(addProperty(addProperty(json('{}
   'beschreibung', coalesce(first(outputs('Elemente_abrufen')?['body/value'])?['BeschreibungOeffentlich'], ''))
 ```
 
-*(Der Ausdruckseditor nimmt keine Zeilenumbrüche an, den Ausdruck in einem
-Texteditor zusammensetzen und als eine einzige Zeile einfügen.)*
+Der Ausdruckseditor nimmt keine Zeilenumbrüche an: den Ausdruck im
+Texteditor zu einer Zeile zusammensetzen.
 
-**Warum so umständlich und nicht einfach ein JSON-Text?**
+</details>
 
-Der naheliegende Weg wäre, im Antworttext direkt JSON zu schreiben und die
-Werte mit `@{…}` hineinzusetzen:
+> [!IMPORTANT]
+> **Drei Regeln, die den Flow sicher machen:**
+>
+> 1. **Nie das ganze Element zurückgeben**, sondern nur die sechs Felder
+>    einzeln. Sonst gehen Seriennummer, IP, Owner, Preis und Notizen an
+>    jede Person, die einen QR-Code scannt.
+> 2. **Die Antwort mit `addProperty()` bauen, nicht als JSON-Text** mit
+>    `@{…}`. Sonst zerlegt der erste Zeilenumbruch oder das erste
+>    Anführungszeichen in der Beschreibung die Antwort.
+> 3. **Den Fehlerzweig (Schritt 5) nicht weglassen.** Sonst antwortet der
+>    Flow bei einer ungültigen Nummer wie `&id=abc` mit HTTP 502 statt mit
+>    «Gerät nicht gefunden».
 
-```json
-{ "beschreibung": "@{…BeschreibungOeffentlich…}" }     ← FALSCH
-```
+### URL eintragen
 
-Das geht so lange gut, bis in einem Feld ein Anführungszeichen oder ein
-Zeilenumbruch steht, und genau das kommt in `BeschreibungOeffentlich`
-regelmässig vor, es ist ja ein mehrzeiliges Textfeld. Der Wert wird dann
-unverändert in den JSON-Text geklebt, und heraus kommt kaputtes JSON:
+Nach dem Speichern zeigt der Trigger die **HTTP-URL** (inklusive
+`?api-version=…&sig=…`). Sie kommt vollständig in
+[`frontend/konfig.js`](../frontend/konfig.js) unter `FLOW_GERAET_URL`.
 
-```json
-{ "beschreibung": "Leihgerät für Kurse.
-Ladegerät fehlt." }                                    ← ungültig
-```
+Liegt der Flow einmal in einer anderen Umgebung mit anderem Host, muss der
+Host auch in [`frontend/_headers`](../frontend/_headers) unter
+`connect-src` stehen. Der heutige Eintrag
+`https://*.environment.api.powerplatform.com` deckt die
+Standardumgebung ab.
 
-`geraet.html` zeigt daraufhin «Unerwartete Antwort», und zwar ausgerechnet
-bei den Geräten, deren Beschreibung jemand sorgfältig gepflegt hat.
+> [!CAUTION]
+> Der Flow liest SharePoint mit dem Dienstkonto
+> `powerplatform@campus-sursee.ch`. Dieses Konto braucht dauerhaft Zugriff
+> auf die Site «mgmts-ict-s». Fehlt er, zeigt jeder QR-Code «Gerät nicht
+> gefunden».
 
-`addProperty()` baut dagegen ein echtes Objekt auf. Power Automate
-serialisiert es am Schluss selbst und maskiert dabei Anführungszeichen,
-Zeilenumbrüche und Sonderzeichen korrekt.
+### Prüfen
 
-`coalesce(…, '')` sorgt dafür, dass leere Felder als `""` erscheinen statt
-als `null`, `geraet.html` blendet leere Werte dann sauber aus.
-
-Bei Auswahlspalten liefert SharePoint ein Objekt; deshalb `?['Value']` bei
-`Kategorie` und `Status`.
-
-> **Die Regel dahinter:** niemals das ganze Element durchreichen
-> (`first(...)` allein oder `body('Elemente_abrufen')`). Damit gingen
-> Seriennummer, IP, MAC, Owner, Preis und die internen Notizen an jeden, der
-> einen QR-Code scannt. Die sechs Felder einzeln aufzuzählen ist mehr
-> Tipparbeit, und genau das ist die Absicherung.
-
-### C.5 Bedingung: gefunden oder nicht
-
-**Neuer Schritt → Bedingung** (*Condition*)
-
-```
-length(outputs('Elemente_abrufen')?['body/value'])   ist grösser als   0
-```
-
-#### Zweig «Wenn ja»: Antwort mit den öffentlichen Feldern
-
-**Aktion → Anforderung → Antwort** (*Response*), benannt `Antwort 200`.
-
-- **Statuscode:** `200`
-- **Header:**
-
-  | Schlüssel | Wert |
-  |---|---|
-  | `Content-Type` | `application/json` |
-  | `Access-Control-Allow-Origin` | `*` |
-
-- **Text (Body):** in das Feld **nur** diesen einen Ausdruck einsetzen,
-  sonst nichts, keine geschweiften Klammern drumherum, kein zusätzlicher
-  Text:
-
-```
-outputs('Antwort')
-```
-
-  Enthält das Body-Feld ausschliesslich einen einzigen Ausdruck, gibt Power
-  Automate den Wert in seinem eigenen Typ weiter, also als JSON-Objekt.
-  Steht noch irgendetwas daneben, wird daraus wieder ein Text, und das
-  Maskierungsproblem aus C.4 wäre zurück.
-
-#### Zweig «Wenn nein»: 404
-
-**Aktion → Anforderung → Antwort**, benannt `Antwort 404`.
-
-- **Statuscode:** `404`
-- **Header:** `Content-Type: application/json`,
-  `Access-Control-Allow-Origin: *`
-- **Text:**
-
-```json
-{ "ok": false, "fehler": "Gerät nicht gefunden" }
-```
-
-Hier ist fester JSON-Text unbedenklich: es kommt kein einziger fremder Wert
-darin vor.
-
-`geraet.html` wertet sowohl den Statuscode 404 als auch `ok: false` aus.
-
-### C.6 Fehlerzweig: ungültige oder fehlende `id`
-
-Ohne diesen Schritt antwortet der Flow bei `&id=abc` mit HTTP 502, weil
-`int('abc')` in C.3 abbricht. Der Fehlerzweig fängt das ab, und gleich auch
-jeden anderen unerwarteten Fehler (SharePoint nicht erreichbar, Drosselung).
-
-1. **Neuer Schritt → Anforderung → Antwort**, benannt `Antwort 404 Fehler`.
-   Sie kommt **nach** der Bedingung, auf der äussersten Ebene.
-2. Inhalt genau gleich wie `Antwort 404` in C.5 (Statuscode `404`, dieselben
-   beiden Header, derselbe feste JSON-Text).
-3. Jetzt das Entscheidende: bei dieser Aktion auf **«…» → Ausführen nach
-   konfigurieren** (*Configure run after*). Als Vorgängeraktion die
-   **Bedingung** wählen und dort die Haken setzen bei:
-   - **ist fehlgeschlagen** (*has failed*)
-   - **wurde übersprungen** (*is skipped*)
-   - **Zeitüberschreitung** (*has timed out*)
-
-   Den Haken bei **ist erfolgreich** (*is successful*) **entfernen**,
-   sonst würde bei einem normalen Treffer zweimal geantwortet.
-
-Damit gilt: läuft alles glatt, antwortet C.5. Bricht irgendwo etwas ab,
-antwortet C.6 mit einem sauberen 404. In beiden Fällen bekommt
-`geraet.html` eine Antwort, die es versteht.
-
-
-### C.7 Speichern und URL kopieren
-
-Nach dem Speichern erscheint im Trigger die **HTTP-POST-URL**. Sie sieht so
-aus (der Name stimmt, es ist trotzdem die URL für den GET-Aufruf):
-
-```
-https://default2553fb745dcc40728bb5399d18f72a.f9.environment.api.powerplatform.com:443/powerautomate/automations/direct/cu/25/workflows/…/triggers/manual/paths/invoke?api-version=1&sp=%2Ftriggers%2Fmanual%2Frun&sv=1.0&sig=…
-```
-
-Diese URL vollständig, inklusive `?api-version=…&sig=…`, in
-`frontend/konfig.js` unter `FLOW_GERAET_URL` eintragen. `geraet.html` hängt `&id=…` an, deshalb
-muss die URL bereits eine Abfragezeichenfolge haben (hat sie immer).
-
-### C.8 Prüfen
-
-Im Browser aufrufen (mit einer echten Element-ID aus der Liste `Geraete`):
-
-```
-<FLOW_GERAET_URL>&id=1
-```
-
-Erwartet: ein JSON mit genau sechs Schlüsseln. Steht dort mehr, stimmt der
-Ausdruck in C.4 nicht.
-
-Diese fünf Fälle müssen alle stimmen, bevor es weitergeht:
+Die Flow-URL im Browser aufrufen und `&id=…` anhängen:
 
 | Aufruf | Erwartet |
 |---|---|
-| `&id=1` (vorhandenes Gerät) | `200`, JSON mit genau den sechs Schlüsseln `name`, `kategorie`, `status`, `hersteller`, `modell`, `beschreibung` |
+| `&id=1` (vorhandenes Gerät) | `200`, JSON mit genau `name`, `kategorie`, `status`, `hersteller`, `modell`, `beschreibung` |
 | `&id=999999` (unbekannt) | `404` mit `{"ok": false, …}` |
-| `&id=abc` (keine Zahl) | `404`, **nicht** `502`. Kommt hier ein 502, fehlt der Fehlerzweig aus C.6. |
-| ganz ohne `&id=` | `404` |
-| Gerät mit «schwieriger» Beschreibung | `200` mit gültigem JSON, siehe unten |
+| `&id=abc` (keine Zahl) | `404`, **nicht** `502` (sonst fehlt Schritt 5) |
+| ohne `&id=` | `404` |
+| Gerät mit Zeilenumbruch und `"` in der Beschreibung | `200` mit gültigem JSON (`\n` und `\"`) |
 
-**Der wichtigste Test: Sonderzeichen in der Beschreibung.**
-
-Bei einem Testgerät in `BeschreibungOeffentlich` bewusst etwas eintragen,
-das den naiven Weg zerlegen würde, mit einem echten Zeilenumbruch und
-einem Anführungszeichen:
-
-```
-Leihgerät für Kurse.
-Achtung: Ladegerät "65 W" fehlt.
-```
-
-Dann den Flow mit der ID dieses Geräts aufrufen. Erwartet wird gültiges
-JSON, in dem der Zeilenumbruch als `\n` und das Anführungszeichen als `\"`
-maskiert sind:
-
-```json
-{"name":"…","kategorie":"…","status":"…","hersteller":"…","modell":"…","beschreibung":"Leihgerät für Kurse.\nAchtung: Ladegerät \"65 W\" fehlt."}
-```
-
-Zeigt der Browser stattdessen einen Fehler beim Anzeigen des JSON, wurde in
-C.4 doch ein JSON-Text statt der `addProperty`-Kette verwendet.
-
-Zum Schluss dasselbe Gerät über `geraet.html` aufrufen: der Zeilenumbruch
-muss in der Beschreibung sichtbar erhalten bleiben (die Seite stellt sie mit
-`white-space: pre-wrap` dar), und das Anführungszeichen muss als
-Anführungszeichen erscheinen.
-
-### C.9 Der Host in der CSP
-
-Der Host der Flow-URL steht in `frontend/_headers` unter `connect-src` als
-`https://*.environment.api.powerplatform.com`. Liegt der Flow in einer
-anderen Umgebung mit einem anderen Host, muss dieser Eintrag angepasst
-werden, sonst blockiert der Browser den Aufruf stillschweigend.
-
-> **Geprüft am 31.08.2026:** Der Host der erzeugten Trigger-URL lautet
-> `default2553fb745dcc40728bb5399d18f72a.f9.environment.api.powerplatform.com`
-> und ist vom bestehenden Platzhalter abgedeckt. `frontend/_headers` musste
-> nicht angepasst werden.
+Alle fünf Fälle wurden am 31.08.2026 erfolgreich geprüft.
 
 ---
 
 ## Schritt D: Netlify und Domain
 
-Kein Build-Prozess. Ausgeliefert wird **ausschliesslich der Ordner
-`frontend`**, er enthält genau die Dateien, die im Web stehen sollen. Alles
-andere im Projekt (`anleitung/`, `code/`, `README.md`) bleibt bewusst
-draussen: die Dokumentation gehört nicht ins öffentliche Web.
+Online geht nur der Ordner **`frontend`**. Es gibt keinen Build-Schritt.
 
-Es gibt zwei Wege. Wer es wie bei der Menüwahl halten will, nimmt D.1a.
-
-### D.1a Ablage per Drag & Drop (wie bei der Menüwahl)
-
-1. <https://app.netlify.com> → **Add new site → Deploy manually**
-2. Den **Ordner `frontend`** in das Feld ziehen. Netlify nimmt ihn dann als
-   Wurzel, und `index.html` liegt richtig auf oberster Ebene.
-
-   > Nicht den Projektordner ziehen und nicht dessen Inhalt einzeln,
-   > sonst landet die Anwendung unter `/frontend/index.html` statt unter `/`,
-   > und `anleitung/` wäre öffentlich abrufbar.
-
-3. Wichtig: `_headers` und `_redirects` müssen mitkommen. Beide beginnen mit
-   einem Unterstrich und werden von manchen Werkzeugen als versteckt
-   behandelt.
-
-### D.1b Ablage aus Git
-
-Wer das Projekt in Git hat, kann die Site stattdessen anbinden:
-**Add new site → Import an existing project**.
-
-Die Einstellungen kommen aus `netlify.toml` im Projektstamm und müssen nicht
-von Hand gesetzt werden:
-
-```toml
-[build]
-  publish = "frontend"
-  command = ""
-```
-
-Falls Netlify trotzdem nachfragt: **Build command** leer lassen,
-**Publish directory** auf `frontend` setzen.
-
-### D.2 Domain
-
-1. In Netlify: **Site configuration → Domain management → Add a domain** →
-   `ictlager.campus-sursee.ch`
-2. Im DNS von `campus-sursee.ch` einen CNAME setzen:
+1. **Site anlegen** in [Netlify](https://app.netlify.com):
+   - *Add new site → Deploy manually* und den **Ordner `frontend`**
+     hineinziehen, **oder**
+   - *Add new site → Import an existing project* und dieses Repository
+     verbinden. Die Einstellungen kommen aus
+     [`netlify.toml`](../netlify.toml) (Publish directory `frontend`, kein
+     Build command).
+2. **Domain:** *Site configuration → Domain management → Add a domain* →
+   `ictlager.campus-sursee.ch`, dann im DNS von `campus-sursee.ch`:
 
    | Name | Typ | Wert |
    |---|---|---|
    | `ictlager` | CNAME | `<site-name>.netlify.app` |
 
-3. Zurück in Netlify warten, bis das Zertifikat (Let's Encrypt) ausgestellt
-   ist, dauert meist wenige Minuten.
-4. **Force HTTPS** einschalten.
+3. Warten, bis das Zertifikat ausgestellt ist (meist wenige Minuten), dann
+   **Force HTTPS** einschalten.
 
-### D.3 Prüfen
+**Prüfen:**
 
-- <https://ictlager.campus-sursee.ch/> zeigt die Startseite.
-- <https://ictlager.campus-sursee.ch/g/1> leitet auf
-  `/geraet.html?id=1` um, damit stimmt `_redirects`.
-- In den Entwicklerwerkzeugen (F12) unter **Netzwerk** bei einer beliebigen
-  Seite prüfen, dass die Kopfzeile `Content-Security-Policy` gesetzt ist,
-  damit stimmt `_headers`.
+- [ ] <https://ictlager.campus-sursee.ch/> zeigt die Startseite
+- [ ] <https://ictlager.campus-sursee.ch/g/1> leitet auf `/geraet.html?id=1` um (`_redirects` wirkt)
+- [ ] In den Entwicklerwerkzeugen (F12 → Netzwerk) ist die Kopfzeile `Content-Security-Policy` gesetzt (`_headers` wirkt)
 
-### D.4 Änderungen später
-
-Immer den **ganzen** Ordner `frontend` neu hochladen (Netlify ersetzt die
-Site komplett), nicht einzelne Dateien. Bei einer Git-Anbindung genügt ein
-Push auf den verbundenen Zweig.
+Wie spätere Änderungen online gehen, steht unter
+[Bedienung und Betrieb, Veröffentlichen](02_Betrieb.md#änderungen-veröffentlichen).
 
 ---
 
-## Schritt E: `frontend/konfig.js` fertig ausfüllen
+## Schritt E: `konfig.js` ausfüllen
 
-> **Stand 31.08.2026: erledigt.** In `frontend/konfig.js` steht kein
-> Platzhalter mehr, `clientId`, `listeGeraete`, `listeVerlauf` und
-> `FLOW_GERAET_URL` sind eingetragen. Offen ist nur noch Schritt D
-> (Netlify und Domain).
+In [`frontend/konfig.js`](../frontend/konfig.js) müssen alle Werte
+eingetragen sein. Stand heute ist das der Fall:
 
-Am Schluss müssen in `frontend/konfig.js` alle Platzhalter ersetzt sein:
+| Eintrag | Herkunft |
+|---|---|
+| `mandantId` | fest, Mandant Campus Sursee |
+| `clientId` | Schritt A |
+| `sitePfad` | fest, `campussursee.sharepoint.com:/sites/mgmts-ict-s` |
+| `listeGeraete`, `listeVerlauf` | Schritt B |
+| `FLOW_GERAET_URL` | Schritt C |
+| `BASIS_URL` | fest, `https://ictlager.campus-sursee.ch` (Adresse in den QR-Codes) |
+| `servicedeskMail` | fest, `servicedesk@campus-sursee.ch` |
 
-```js
-const KONFIG = {
-  mandantId: "2553fb74-5dcc-4072-8bb5-399d18f72af9",   // steht bereits
-  clientId:  "58384569-7580-4617-ad5c-2bf5a81d397d",    // aus Schritt A.1
-  sitePfad:  "campussursee.sharepoint.com:/sites/mgmts-ict-s",  // steht bereits
-  listeGeraete: "9fb53d45-26c9-4d72-9297-696231048d69", // aus Schritt B
-  listeVerlauf: "a63f4b50-3a2d-43b6-8878-a271667fa351", // aus Schritt B
-  FLOW_GERAET_URL: "https://…powerplatform.com/…&sig=…", // aus Schritt C.7
-  BASIS_URL: "https://ictlager.campus-sursee.ch",       // steht bereits
-  servicedeskMail: "servicedesk@campus-sursee.ch"       // steht bereits
-};
-```
-
-Nach jeder Änderung an `frontend/konfig.js`: den Ordner `frontend` neu auf
-Netlify ablegen (Schritt D.1a) bzw. den Stand pushen (D.1b).
+Nach jeder Änderung den Ordner `frontend` neu veröffentlichen.
 
 ---
 
@@ -633,34 +291,10 @@ Netlify ablegen (Schritt D.1a) bzw. den Stand pushen (D.1b).
 
 Zum Schluss die ganze Kette einmal durchspielen:
 
-1. `admin.html` öffnen → Anmeldung läuft ohne Eingabe durch (SSO).
-2. **Neues Gerät** anlegen, speichern.
-3. Gerät wieder öffnen → im Verlauf steht «Erstellt» mit Name und Zeit.
-4. Ein Feld ändern, speichern, erneut öffnen → «Geändert» mit dem alten und
-   dem neuen Wert.
-5. **Etikette drucken** → Druckvorschau erscheint, QR-Code sichtbar.
-6. QR-Code mit dem Handy scannen (nicht im WLAN der Verwaltung, ruhig über
-   Mobilfunk, die Seite muss ohne Anmeldung gehen) → die öffentliche
-   Geräteseite erscheint mit Name, Kategorie, Status, Hersteller, Modell,
-   Beschreibung und den Kontaktangaben. **Sonst nichts.**
-7. Ein Konto, das der Unternehmensanwendung *nicht* zugewiesen ist,
-   probeweise auf `admin.html` schicken → Entra weist es ab.
-
----
-
-## Was der Betrieb später wissen muss
-
-- **Zugriff des Flows:** Der Flow «API Geraet laden» liest SharePoint mit dem
-  Dienstkonto `powerplatform@campus-sursee.ch`. Dieses Konto braucht dauerhaft
-  Zugriff auf die Site `mgmts-ict-s`. Verliert es ihn, liefert der Flow für
-  jedes Gerät ein 404.
-- **Neue Person berechtigen:** Entra → Unternehmensanwendungen →
-  `ICT Lager Verwaltung` → Benutzer und Gruppen (oder in die Gruppe
-  `SG-ICT-Lager` aufnehmen). Zusätzlich braucht die Person Zugriff auf die
-  SharePoint-Site `mgmts-ict-s`, das Token ist delegiert und kann nicht
-  mehr als die Person selbst.
-- **Versehentlich gelöschtes Gerät:** SharePoint-Papierkorb der Site
-  `mgmts-ict-s`, 93 Tage.
-- **Spalte ergänzen:** in `frontend/graph.js` bei `SPALTEN_GERAETE` eintragen, dann
-  `setup.html` nochmals ausführen, die Spalte wird ergänzt, bestehende
-  Daten bleiben.
+- [ ] `admin.html` öffnen: die Anmeldung läuft ohne Eingabe durch
+- [ ] **Neues Gerät** anlegen und speichern
+- [ ] Gerät wieder öffnen: im Verlauf steht «Erstellt» mit Name und Zeit
+- [ ] Ein Feld ändern und speichern: im Verlauf steht «Geändert» mit altem und neuem Wert
+- [ ] **Etikette drucken**: die Druckvorschau zeigt den QR-Code
+- [ ] QR-Code mit dem Handy über Mobilfunk scannen: die Geräteseite zeigt Name, Kategorie, Status, Hersteller, Modell, Beschreibung und Kontakt, **sonst nichts**
+- [ ] Mit einem **nicht** zugewiesenen Konto `admin.html` öffnen: Entra weist es ab
