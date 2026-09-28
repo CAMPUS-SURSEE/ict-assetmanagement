@@ -1,156 +1,106 @@
 # ICT Lager Campus Sursee
 
-Inventarverwaltung für die Informatikgeräte von Campus Sursee.
+**Die Inventarverwaltung für alle Informatikgeräte von Campus Sursee.**
 
-<https://ictlager.campus-sursee.ch>
+Die Informatik erfasst hier alle Geräte an einem Ort: Notebooks, Monitore,
+Drucker, Netzwerkgeräte und mehr. Jedes Gerät bekommt eine Etikette mit
+QR-Code. Wer ein Gerät findet und den Code scannt, sieht sofort, was es ist
+und wie der ICT Servicedesk erreichbar ist.
 
-Rein statische Website: kein Build-Prozess, kein Framework, keine
-Abhängigkeiten zum Installieren. Der Ordner `frontend/` ist genau der
-Ordner, der auf Netlify liegt.
-
----
-
-## Was die Anwendung macht
-
-**Für die Informatik** (Anmeldung mit dem Campus-Sursee-Konto):
-Geräte erfassen, suchen, filtern, ändern und löschen; ein Dashboard mit
-Kennzahlen und den Geräten, deren *End of Life* näher rückt; für jedes Gerät
-eine Chronik, die sich bei jeder Änderung selbst fortschreibt; Etiketten mit
-QR-Code drucken.
-
-**Für alle anderen** (ohne Anmeldung): Wer den QR-Code auf einer Etikette
-scannt, sieht eine kurze Geräteseite mit Name, Kategorie, Status, Hersteller,
-Modell und Beschreibung sowie die Kontaktangaben des ICT Servicedesks.
-Interne Angaben wie Seriennummer, IP-Adresse, Owner, Preis oder Notizen
-erscheinen dort nie: sie verlassen SharePoint gar nicht erst.
+🌐 **<https://ictlager.campus-sursee.ch>**
 
 ---
 
-## Aufbau des Projekts
+## Schnellzugriff
 
-```
-frontend/     wird von Netlify ausgeliefert, und nur das
-code/         Werkzeuge für die Entwicklung, nicht im Web
-anleitung/    Einrichtung und technische Dokumentation
-netlify.toml  publish = "frontend", kein Build-Befehl
-README.md     diese Datei
-```
-
-Die Trennung ist Absicht: was in `frontend/` liegt, ist öffentlich
-erreichbar. Alles andere gehört nicht ins Web.
-
-### `frontend/`
-
-| Datei | Anmeldung | Zweck |
+| | Was | Wofür |
 |---|---|---|
-| `index.html` | nein | Startseite |
-| `admin.html` | ja | Verwaltung: Dashboard, Geräte, Etiketten |
-| `geraet.html` | **nein** | öffentliche Geräteseite hinter dem QR-Code |
-| `etikette.html` | ja | Druckansicht der Etiketten |
-| `setup.html` | ja | einmalige Einrichtung der SharePoint-Listen |
-| `konfig.js` | | alle Einstellungen an einem Ort |
-| `auth.js` | | Anmeldung an Entra ID (Aufsatz auf MSAL) |
-| `graph.js` | | Zugriff auf die SharePoint-Listen über Microsoft Graph |
-| `_headers` | | Kopfzeilen für Netlify, vor allem die CSP |
-| `_redirects` | | `/g/:id` → `/geraet.html?id=:id` |
-
-Daten liegen in zwei SharePoint-Listen (`Geraete`, `Verlauf`) auf der Site
-<https://campussursee.sharepoint.com/sites/mgmts-ict-s>.
+| 🌐 | [Startseite](https://ictlager.campus-sursee.ch) | Einstieg in die Anwendung |
+| 🔐 | [Verwaltung](https://ictlager.campus-sursee.ch/admin.html) | Geräte erfassen, suchen, Etiketten drucken (nur Informatik) |
+| 📋 | [SharePoint: Liste «Geraete»](https://campussursee.sharepoint.com/sites/mgmts-ict-s/Lists/Geraete/AllItems.aspx) | hier liegen die Gerätedaten |
+| 🕓 | [SharePoint: Liste «Verlauf»](https://campussursee.sharepoint.com/sites/mgmts-ict-s/Lists/Verlauf/AllItems.aspx) | hier liegt die Chronik aller Änderungen |
+| 🗂️ | [SharePoint-Site «mgmts-ict-s»](https://campussursee.sharepoint.com/sites/mgmts-ict-s) | die Site, auf der beide Listen liegen |
+| ⚙️ | [Power Automate](https://make.powerautomate.com/environments/Default-2553fb74-5dcc-4072-8bb5-399d18f72af9/flows) | Flow «API Geraet laden» für die öffentliche Geräteseite |
+| 🔑 | [Entra ID: App-Registrierung](https://entra.microsoft.com/#view/Microsoft_AAD_RegisteredApps/ApplicationMenuBlade/~/Overview/appId/58384569-7580-4617-ad5c-2bf5a81d397d) | Anmeldung und Berechtigungen |
+| 🚀 | [Netlify](https://app.netlify.com) | hier ist die Website abgelegt |
 
 ---
 
-## Lokal testen
+## So funktioniert es
 
-Aus dem Projektstamm:
-
-```powershell
-.\code\serve.ps1
+```mermaid
+flowchart LR
+    A["💻 Informatik<br/>erfasst das Gerät"] --> B["🏷️ Etikette<br/>mit QR-Code drucken"]
+    B --> C["📱 Jemand scannt<br/>den QR-Code"]
+    C --> D["ℹ️ Geräteseite<br/>mit Kontakt"]
 ```
 
-Dann <http://localhost:8000/> öffnen. Beenden mit `Strg+C`.
+1. **Erfassen:** Die Informatik trägt ein Gerät in der Verwaltung ein.
+2. **Etikette:** Aus der Verwaltung wird eine Etikette mit QR-Code gedruckt
+   und auf das Gerät geklebt.
+3. **Scannen:** Wer den QR-Code mit dem Handy scannt, sieht eine kurze
+   Geräteseite und die Kontaktangaben des Servicedesks. Ohne Anmeldung.
 
-Das Skript liefert den Ordner `frontend/` aus, also genau das, was auch
-Netlify ausliefert, und bildet zusätzlich die Umleitung `/g/:id` nach, so
-dass sich die QR-Codes auch lokal ausprobieren lassen.
-
-Alternativ, wenn Python vorhanden ist (dann allerdings ohne die
-`/g/:id`-Umleitung):
-
-```bash
-cd frontend
-python -m http.server 8000
-```
-
-**Die Seiten dürfen nicht per Doppelklick über `file://` geöffnet werden.**
-MSAL braucht einen echten Ursprung, und die Umleitungsadresse in der
-App-Registrierung lautet auf `http://localhost:8000/…`, genau diese Adresse
-muss der Browser sehen.
-
-Damit die Anmeldung lokal funktioniert, müssen in der App-Registrierung die
-`localhost`-Umleitungsadressen eingetragen sein (siehe
-[anleitung/01_Einrichtung.md](anleitung/01_Einrichtung.md), Schritt A.2).
-
-Die Kopfzeilen aus `_headers` setzt der lokale Server bewusst nicht, die
-Content-Security-Policy lässt sich nur auf Netlify richtig prüfen.
+Jede Änderung an einem Gerät wird automatisch im **Verlauf** festgehalten:
+wer hat wann was geändert.
 
 ---
 
-## Veröffentlichen
+## Zwei Bereiche: intern und öffentlich
 
-**Per Drag & Drop** (wie bei der Menüwahl): <https://app.netlify.com>
-öffnen, die betreffende Site wählen, **Deploys → Drag and drop**, und den
-Ordner **`frontend`** hineinziehen.
+| | 🔐 Verwaltung | 🌍 Geräteseite |
+|---|---|---|
+| **Für wen** | Mitarbeitende der Informatik | alle, die einen QR-Code scannen |
+| **Anmeldung** | Campus-Sursee-Konto (Microsoft 365) | keine |
+| **Sichtbar** | alle Angaben, auch Seriennummer, IP, Owner, Preis, Notizen, Verlauf | nur Name, Kategorie, Status, Hersteller, Modell, Beschreibung |
+| **Möglich** | erfassen, ändern, löschen, Etiketten drucken, Dashboard | Servicedesk kontaktieren |
 
-> Nicht den Projektstamm ziehen, sonst landet die Anwendung unter
-> `/frontend/index.html` statt unter `/`, und `anleitung/` wäre öffentlich
-> abrufbar.
-
-`_headers` und `_redirects` müssen mitkommen. Beide beginnen mit einem
-Unterstrich und werden von manchen Werkzeugen als versteckt behandelt.
-
-**Aus Git:** Site mit dem Repository verbinden. Die Einstellungen kommen aus
-`netlify.toml` (`publish = "frontend"`, kein Build-Befehl) und müssen nicht
-von Hand gesetzt werden.
-
-Beim manuellen Weg immer den ganzen Ordner `frontend` ablegen, nicht
-einzelne Dateien, Netlify ersetzt die Site vollständig.
+> [!IMPORTANT]
+> Interne Angaben (Seriennummer, IP, Preis, Notizen usw.) erscheinen **nie**
+> auf der öffentlichen Geräteseite. Nur das Feld **«Beschreibung
+> öffentlich»** ist für alle sichtbar, dort also nichts Vertrauliches
+> eintragen.
 
 ---
 
-## Einrichtung
+## Die Bausteine
 
-Vor dem ersten Einsatz sind fünf Schritte nötig: App-Registrierung in Entra
-ID, SharePoint-Listen anlegen, Power-Automate-Flow bauen, Netlify und
-Domain, `frontend/konfig.js` ausfüllen.
+Die Anwendung braucht keinen eigenen Server. Sie setzt sich aus Diensten
+zusammen, die Campus Sursee ohnehin nutzt:
 
-Alles Schritt für Schritt in
-**[anleitung/01_Einrichtung.md](anleitung/01_Einrichtung.md)**.
-
-Die Platzhalter in `frontend/konfig.js` (`HIER_CLIENT_ID_EINTRAGEN`,
-`HIER_FLOW_URL_EINTRAGEN`) zeigen, was noch fehlt.
+| Baustein | Aufgabe |
+|---|---|
+| **Netlify** | liefert die Website aus (reine HTML-Dateien) |
+| **SharePoint** | speichert die Daten in zwei Listen: `Geraete` und `Verlauf` |
+| **Microsoft Entra ID** | prüft bei der Anmeldung, wer in die Verwaltung darf |
+| **Power Automate** | gibt der öffentlichen Geräteseite die wenigen erlaubten Angaben heraus |
 
 ---
 
-## Weiterentwickeln
+## Dokumentation
 
-**[anleitung/02_Technische_Dokumentation.md](anleitung/02_Technische_Dokumentation.md)**
-erklärt Architektur, Datenmodell, Sicherheitsmodell und Code-Struktur, und
-vor allem, warum die Dinge so gebaut sind, wie sie gebaut sind.
+| Dokument | Für wen | Inhalt |
+|---|---|---|
+| 📘 [Bedienung und Betrieb](anleitung/02_Betrieb.md) | alle in der Informatik | Geräte erfassen, Etiketten drucken, Personen berechtigen, Probleme lösen |
+| 🛠️ [Einrichtung](anleitung/01_Einrichtung.md) | Administration | einmalige Einrichtung von Entra ID, SharePoint, Power Automate, Netlify |
+| 🧩 [Technische Dokumentation](anleitung/03_Technische_Dokumentation.md) | Entwicklung | Aufbau, Datenmodell, Sicherheit, Code |
 
-Drei Regeln, die beim Ändern nie verletzt werden dürfen:
+**Neu hier?** Mit [Bedienung und Betrieb](anleitung/02_Betrieb.md) beginnen.
 
-1. **Fremder Inhalt geht nie über `innerHTML` ins Dokument**, sondern immer
-   über `textContent`. Für den Ausnahmefall steht `Hilfe.escape()` bereit.
-2. **Die öffentliche Seite bekommt nur, was der Flow herausgibt.** Wer ein
-   Feld öffentlich machen will, ändert den Flow, nicht die Seite. Im
-   Browser ausgeblendete Felder sind nicht geschützt, sondern nur unsichtbar.
-3. **Der Flow baut sein JSON mit `addProperty()`**, nie als
-   zusammengeklebten Text. Sonst zerlegt der erste Zeilenumbruch in einer
-   Beschreibung die Antwort.
+---
+
+## Ordner im Repository
+
+| Ordner | Inhalt | Online? |
+|---|---|---|
+| `frontend/` | die Website, genau so, wie sie auf Netlify liegt | ✅ ja |
+| `anleitung/` | diese Dokumentation | ❌ nein |
+| `code/` | Hilfsmittel für Tests und eine Sicherungskopie des Flows | ❌ nein |
 
 ---
 
 ## Kontakt
 
-ICT Servicedesk Campus Sursee
-<servicedesk@campus-sursee.ch> · +41 41 926 23 69
+**ICT Servicedesk Campus Sursee**
+✉️ [servicedesk@campus-sursee.ch](mailto:servicedesk@campus-sursee.ch) ·
+📞 [+41 41 926 23 69](tel:+41419262369)
